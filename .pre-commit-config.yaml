@@ -1,0 +1,26 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: snyk-security-scan
+        name: Snyk Security Scan
+        description: Multi-language dependency vulnerability scanning with Snyk
+        entry: bash -c "set -o pipefail; snyk test --all-projects 2>&1 | tee logs/snyk.log"
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: gitleaks-local
+        name: GitLeaks Secrets Scanner
+        description: Detect hardcoded secrets like passwords, api keys, and tokens in git repos
+        entry: bash -c "set -o pipefail; docker run --rm -v \"$PWD\":/scan zricethezav/gitleaks:latest detect --source /scan --no-git --verbose 2>&1 | tee logs/gitleaks.log"
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false

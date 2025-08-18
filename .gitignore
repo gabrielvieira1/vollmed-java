@@ -56,3 +56,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Arquivos de configuração sensível
+.env
+.env.local
+.env.production
+.env.staging
+
+# Logs de segurança
+logs/
+*.log
+security-reports/
+
+# Arquivos temporários de scanners de segurança
+.snyk
+dependency-check-report.*
