@@ -37,6 +37,18 @@ repos:
         stages: [pre-commit]
         pass_filenames: false
 
+  - repo: local
+    hooks:
+      - id: vulnerability-summary
+        name: Generate AI Vulnerability Summary
+        description: Generates a Markdown summary of security scan results using the Gemini API.
+        entry: python3 scripts/vulnerability_summary.py
+        language: python
+        stages: [pre-commit]
+        pass_filenames: false
+        always_run: true
+        additional_dependencies: [google-generativeai, python-dotenv]
+
   # - repo: local
   #   hooks:
   #     - id: bandit-python-sast
