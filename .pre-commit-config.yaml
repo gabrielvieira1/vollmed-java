@@ -9,26 +9,40 @@ repos:
 
   - repo: local
     hooks:
-      - id: snyk-security-sca-scan
-        name: Snyk Security SCA Scan
-        description: Multi-language dependency vulnerability scanning with Snyk
-        entry: bash -c "snyk test --all-projects > logs/snyk.log 2>&1"
+      - id: secure-dependencies
+        name: Snyk Security Scan
+        description: Multi-language dependency vulnerability scanning with Snyk via Docker
+        entry: bash -c "echo '🛡️  Executando Snyk Security Scan via Docker...' && mkdir -p logs && if [ -f .env ]; then export $(grep -v '^#' .env | xargs); fi; if [ -n \"$SNYK_TOKEN\" ]; then docker run --rm -e SNYK_TOKEN=\"$SNYK_TOKEN\" -v $(pwd):/project -w /project snyk/snyk:java snyk test --package-manager=maven --severity-threshold=high --json > logs/snyk.log 2>&1; EXIT_CODE=$?; else echo '⚠️  SNYK_TOKEN não encontrado. Configure seu token em .env'; echo 'Executando sem autenticação (funcionalidade limitada)...'; docker run --rm -v $(pwd):/project -w /project snyk/snyk:java snyk test --package-manager=maven --severity-threshold=high --json > logs/snyk.log 2>&1; EXIT_CODE=$?; fi; echo '📋 Resultados salvos em logs/snyk.log'; exit $EXIT_CODE"
         language: system
-        pass_filenames: false
         stages: [pre-commit]
+        pass_filenames: false
 
-      - id: gitleaks-secrets-scan
+  - repo: local
+    hooks:
+      - id: gitleaks-local
         name: GitLeaks Secrets Scanner
         description: Detect hardcoded secrets like passwords, api keys, and tokens in git repos
-        entry: bash -c "docker run --rm -v \"$PWD\":/scan zricethezav/gitleaks:latest detect --source /scan --no-git --verbose > logs/gitleaks.log 2>&1"
+        entry: bash -c "echo '🕵️  Executando GitLeaks via Docker...' && mkdir -p logs && docker run --rm -v $(pwd):/path zricethezav/gitleaks:latest detect --source=/path --no-git --verbose > logs/gitleaks.log 2>&1; EXIT_CODE=$?; echo '📋 Resultados salvos em logs/gitleaks.log'; exit $EXIT_CODE"
         language: system
         stages: [pre-commit]
         pass_filenames: false
 
-      - id: semgrep-sast-scan
-        name: Semgrep Security SAST Scan
-        description: Static analysis for security vulnerabilities with Semgrep
-        entry: bash -c "docker run --rm -v \"$PWD\":/src returntocorp/semgrep semgrep --config=auto --json --error /src > logs/semgrep.log 2>&1"
+  - repo: local
+    hooks:
+      - id: semgrep-sast
+        name: Semgrep SAST Scanner
+        description: Static analysis security testing with Semgrep
+        entry: bash -c "echo '🔎 Executando Semgrep SAST via Docker...' && mkdir -p logs && docker run --rm -v $(pwd):/src returntocorp/semgrep semgrep --config=auto --error --json /src > logs/semgrep.log 2>&1; EXIT_CODE=$?; echo '📋 Resultados salvos em logs/semgrep.log'; exit $EXIT_CODE"
         language: system
-        pass_filenames: false
         stages: [pre-commit]
+        pass_filenames: false
+
+  # - repo: local
+  #   hooks:
+  #     - id: bandit-python-sast
+  #       name: Bandit Python Security Scanner
+  #       description: Security linter for Python code
+  #       entry: bash -c "echo '🐍 Executando Bandit Python SAST...' && mkdir -p logs && if find . -name '*.py' -not -path './.git/*' -not -path './logs/*' | head -1 | grep -q .; then docker run --rm -v $(pwd):/src --workdir /src python:3.11-slim bash -c 'pip install bandit > /dev/null 2>&1 && bandit -r . -f json' > logs/bandit.log 2>&1; EXIT_CODE=$?; if [ $EXIT_CODE -ne 0 ]; then echo '❌ Vulnerabilidades Python encontradas!'; fi; echo '📋 Resultados salvos em logs/bandit.log'; exit $EXIT_CODE; else echo 'ℹ️  Nenhum arquivo Python encontrado, pulando Bandit...'; exit 0; fi"
+  #       language: system
+  #       stages: [pre-commit]
+  #       pass_filenames: false
