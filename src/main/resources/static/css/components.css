@@ -1,0 +1,326 @@
+/* ===========================
+   REUSABLE COMPONENTS
+   =========================== */
+
+/* ===========================
+   BUTTONS - LEGACY
+   =========================== */
+
+.btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background-color: #339CFF;
+    color: #fff;
+}
+
+.btn-secondary {
+    background-color: #ff3333;
+    color: #fff;
+}
+
+.btn-tertiary {
+    background-color: #319E0B;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #333;
+    padding: 10px 0;
+    cursor: pointer;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.btn-link:hover {
+    color: #2979ff;
+}
+
+.btn-icon {
+    height: 16px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.btn-edit,
+.btn-delete {
+    padding: 0;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+/* ===========================
+   FORMS - LEGACY
+   =========================== */
+
+.form-card {
+    min-width: 800px;
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    color: #333;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #81B7E1;
+    background-color: #F3F9FA;
+    color: #6B6E71;
+}
+
+/* ===========================
+   CARDS - LEGACY
+   =========================== */
+
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0px 7px 50px rgba(12, 5, 83, 0.09);
+    margin: 20px 0;
+}
+
+.title {
+    color: #0B3B60;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+/* ===========================
+   TABLES - LEGACY
+   =========================== */
+
+.table-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.table-controls a {
+    text-decoration: none;
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    table-layout: fixed;
+}
+
+.tabela th,
+.tabela td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #339cff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tabela th {
+    font-weight: bold;
+    color: #339cff;
+}
+
+.tabela td img {
+    height: 20px;
+}
+
+.table-footer div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.results {
+    font-size: 14px;
+    color: #666;
+}
+
+/* ===========================
+   PAGINATION
+   =========================== */
+
+.pagination {
+    display: flex;
+    gap: 10px;
+}
+
+.pagination a {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    color: #339cff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.pagination a:hover {
+    color: #2979ff;
+}
+
+.pagination .current-page {
+    font-weight: bold;
+    margin: 0 5px;
+    color: #333;
+}
+
+.pagination .disabled {
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+.pagination .disabled:hover {
+    color: #aaa;
+}
+
+.pagination .active {
+    font-weight: bold;
+}
+
+/* ===========================
+   ALERTS - LEGACY
+   =========================== */
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+/* ===========================
+   MODALS
+   =========================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+    position: relative;
+    margin: 10% auto;
+    width: 80%;
+    max-width: 600px;
+}
+
+.modal-content {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header,
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header {
+    border-bottom: 1px solid #eceeef;
+}
+
+.modal-footer {
+    border-top: 1px solid #eceeef;
+    padding-top: 10px;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 18px;
+}
+
+.modal-body {
+    margin: 10px 0;
+    flex-grow: 1;
+}
+
+.close {
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.btn-default {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.btn-danger {
+    background-color: #d9534f;
+    color: #fff;
+}
+
+/* ===========================
+   BUTTONS & CONTROLS
+   =========================== */
+
+.buttons button {
+    font-size: 16px;
+}
+
+.buttons a {
+    text-decoration: none;
+}

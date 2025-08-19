@@ -1,0 +1,239 @@
+/* ===========================
+   AUTHENTICATION PAGES
+   =========================== */
+
+.auth-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #64B4FF 0%, #339CFF 50%, #0B3B60 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('../assets/medico.png') no-repeat right bottom,
+                url('../assets/medica.png') no-repeat left bottom;
+    background-size: 200px auto, 180px auto;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 50px;
+    box-shadow: 0 20px 60px rgba(11, 59, 96, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    max-width: 450px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-logo img {
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.auth-title {
+    color: #0B3B60;
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.auth-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #339CFF, #64B4FF);
+    border-radius: 2px;
+}
+
+/* ===========================
+   FORM ELEMENTS
+   =========================== */
+
+.auth-form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.auth-form-group label {
+    color: #0B3B60;
+    font-weight: 600;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.auth-form-group input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #E7EBEF;
+    border-radius: 12px;
+    font-size: 16px;
+    background-color: #F8F9FA;
+    color: #0B3B60;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.auth-form-group input:focus {
+    border-color: #339CFF;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(51, 156, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* ===========================
+   BUTTONS
+   =========================== */
+
+.auth-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #339CFF 0%, #0B3B60 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(51, 156, 255, 0.3);
+    margin-top: 20px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.auth-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(51, 156, 255, 0.4);
+    background: linear-gradient(135deg, #0B3B60 0%, #339CFF 100%);
+}
+
+.auth-btn:active {
+    transform: translateY(0);
+}
+
+.auth-btn.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+}
+
+.auth-btn.btn-secondary:hover {
+    background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+    box-shadow: 0 12px 35px rgba(108, 117, 125, 0.4);
+}
+
+.auth-btn.btn-danger {
+    background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+    box-shadow: 0 8px 25px rgba(255, 71, 87, 0.3);
+}
+
+.auth-btn.btn-danger:hover {
+    background: linear-gradient(135deg, #ff3742 0%, #ff2837 100%);
+    box-shadow: 0 12px 35px rgba(255, 71, 87, 0.4);
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.auth-buttons .auth-btn {
+    flex: 1;
+    margin-top: 0;
+}
+
+/* ===========================
+   ALERTS & MESSAGES
+   =========================== */
+
+.auth-alert {
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+}
+
+.auth-alert.alert-danger {
+    background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+}
+
+.auth-alert.alert-success {
+    background: linear-gradient(135deg, #2ed573 0%, #1e90ff 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
+}
+
+/* ===========================
+   LINKS
+   =========================== */
+
+.auth-link {
+    display: inline-block;
+    color: #339CFF;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.auth-link:hover {
+    background-color: rgba(51, 156, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+/* ===========================
+   LOGOUT SPECIFIC
+   =========================== */
+
+.logout-message {
+    text-align: center;
+    color: #0B3B60;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    line-height: 1.4;
+}
+
+.logout-icon {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 48px;
+    color: #ff4757;
+}

@@ -1,0 +1,297 @@
+/* ===========================
+   RESPONSIVE DESIGN
+   =========================== */
+
+/* Tablet and Mobile Styles */
+@media (max-width: 768px) {
+
+    /* ===========================
+       BASE & LAYOUT
+       =========================== */
+    .container {
+        padding: 0 10px;
+    }
+
+    /* ===========================
+       HEADER & NAVIGATION
+       =========================== */
+    .header-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .main-nav {
+        margin: 0;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .nav-user {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* ===========================
+       HERO SECTION
+       =========================== */
+    .hero {
+        padding: 40px 0 20px 0; /* Mantém o padding reduzido */
+        min-height: calc(100vh - 120px); /* Ajusta para mobile */
+    }
+
+    .hero .container {
+        gap: 20px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-content {
+        max-width: 100%;
+        padding-right: 0;
+        order: 1;
+    }
+
+    .hero-image {
+        order: 2;
+        justify-content: center;
+        margin-top: 15px; /* Reduz ainda mais a margem */
+    }
+
+    .hero-logo {
+        font-size: 48px; /* Reduz no mobile */
+        margin-bottom: 20px;
+    }
+
+    .hero-logo img {
+        width: 40px; /* Reduz no mobile */
+    }
+
+    .hero-title {
+        font-size: 28px; /* Mantém o tamanho ajustado */
+    }
+
+    .hero-subtitle {
+        font-size: 18px; /* Mantém o tamanho ajustado */
+        margin-bottom: 15px; /* Reduz ainda mais */
+    }
+
+    .hero-image img {
+        max-height: 250px; /* Reduz as imagens no mobile */
+    }
+
+    .hero-image img:last-child {
+        margin-left: 0;
+        max-height: 220px;
+    }
+
+    .hero-actions {
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px; /* Reduz a margem */
+    }
+
+    .hero-actions .hero-login-btn {
+        margin-right: 0 !important;
+        text-align: center;
+        padding: 12px 20px; /* Reduz ainda mais no mobile */
+        font-size: 13px; /* Reduz fonte no mobile */
+    }
+
+    /* ===========================
+       AUTHENTICATION PAGES
+       =========================== */
+    .auth-card {
+        padding: 30px 25px;
+        margin: 10px;
+        border-radius: 15px;
+    }
+
+    .auth-title {
+        font-size: 28px;
+        margin-bottom: 30px;
+    }
+
+    .auth-form-group input {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+
+    .auth-btn {
+        padding: 15px;
+        font-size: 14px;
+    }
+
+    .auth-buttons {
+        flex-direction: column;
+    }
+
+    .logout-message {
+        font-size: 20px;
+    }
+
+    /* ===========================
+       INTERNAL PAGES
+       =========================== */
+    .main-container {
+        padding: 20px 0;
+    }
+
+    .page-header {
+        margin: -20px 0 20px 0;
+        padding: 20px 0;
+    }
+
+    .page-title {
+        font-size: 28px;
+    }
+
+    .modern-card {
+        padding: 25px 20px;
+        border-radius: 15px;
+        margin: 10px;
+    }
+
+    .form-title {
+        font-size: 26px;
+        margin-bottom: 30px;
+    }
+
+    .modern-form-group {
+        margin-bottom: 25px;
+    }
+
+    .modern-form-group input,
+    .modern-form-group select {
+        padding: 14px 18px;
+        font-size: 14px;
+    }
+
+    .modern-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .modern-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .table-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .table-title {
+        font-size: 24px;
+    }
+
+    .modern-table {
+        font-size: 12px;
+    }
+
+    .modern-table th,
+    .modern-table td {
+        padding: 12px 8px;
+    }
+
+    .action-buttons {
+        gap: 4px;
+    }
+
+    /* ===========================
+       LEGACY COMPONENTS
+       =========================== */
+    .card {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+
+    .buttons .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .buttons .btn-secondary img {
+        height: 20px;
+    }
+
+    .form-card {
+        max-width: 100%;
+        min-width: unset;
+    }
+
+    .table-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pagination {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* ===========================
+   LARGE SCREENS
+   =========================== */
+@media (min-width: 1400px) {
+    .container,
+    .header-container {
+        max-width: 1320px;
+    }
+
+    .hero-title {
+        font-size: 72px;
+    }
+
+    .hero-subtitle {
+        font-size: 40px;
+    }
+}
+
+/* ===========================
+   SMALL MOBILE
+   =========================== */
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 20px 15px;
+        margin: 5px;
+    }
+
+    .hero-logo {
+        font-size: 48px;
+    }
+
+    .hero-title {
+        font-size: 24px;
+    }
+
+    .hero-subtitle {
+        font-size: 16px;
+    }
+
+    .modern-table {
+        font-size: 11px;
+    }
+
+    .modern-table th,
+    .modern-table td {
+        padding: 8px 4px;
+    }
+}
