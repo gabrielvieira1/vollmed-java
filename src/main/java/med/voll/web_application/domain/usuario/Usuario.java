@@ -18,6 +18,14 @@ public class Usuario implements UserDetails {
     private String email;
     private String senha;
 
+    public Usuario() {}
+
+    public Usuario(String nome, String email, String senha) {
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
@@ -30,10 +38,30 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-            return email;
+        return email;
     }
 
     public String getNome() {
-            return nome;
+        return nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

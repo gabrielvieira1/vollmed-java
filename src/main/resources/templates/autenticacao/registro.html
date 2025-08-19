@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://thymeleaf.org">
+<head>
+    <title>Criar Conta - Voll.med</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../static/assets/logo.png" th:href="@{/assets/logo.png}">
+    <link rel="stylesheet" href="../static/css/estilos.css" th:href="@{/css/estilos.css}">
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <img src="../static/assets/logo.png" th:src="@{/assets/logo.png}" alt="Logo Voll.med">
+            </div>
+
+            <h1 class="auth-title">Criar Conta</h1>
+
+            <form method="post" action="#" th:action="@{/registro}" th:object="${dados}">
+                <div class="auth-alert alert-danger" th:if="${erro}">
+                    ❌ <span th:text="${erro}">Erro</span>
+                </div>
+
+                <div class="auth-form-group">
+                    <label for="nome">Nome Completo</label>
+                    <input id="nome" name="nome" th:field="*{nome}" placeholder="Digite seu nome completo" required>
+                    <div class="auth-alert alert-danger" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">❌</div>
+                </div>
+
+                <div class="auth-form-group">
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" th:field="*{email}" placeholder="Digite seu email" required>
+                    <div class="auth-alert alert-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">❌</div>
+                </div>
+
+                <div class="auth-form-group">
+                    <label for="senha">Senha</label>
+                    <input id="senha" name="senha" type="password" th:field="*{senha}" placeholder="Mínimo 6 caracteres" required>
+                    <div class="auth-alert alert-danger" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}">❌</div>
+                </div>
+
+                <div class="auth-form-group">
+                    <label for="confirmarSenha">Confirmar Senha</label>
+                    <input id="confirmarSenha" name="confirmarSenha" type="password" th:field="*{confirmarSenha}" placeholder="Digite a senha novamente" required>
+                    <div class="auth-alert alert-danger" th:if="${#fields.hasErrors('confirmarSenha')}" th:errors="*{confirmarSenha}">❌</div>
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    Criar Conta
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <p style="color: #6c757d; margin-bottom: 15px;">Já tem uma conta?</p>
+                <a th:href="@{/login}" class="auth-link">← Fazer Login</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

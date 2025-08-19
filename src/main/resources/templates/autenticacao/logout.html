@@ -1,27 +1,41 @@
 <!DOCTYPE html>
 <html lang="pt-br"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{template.html}">
+      xmlns:th="http://thymeleaf.org">
 <head>
-    <title>Confirmar Logout</title>
+    <title>Sair - Voll.med</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../static/assets/logo.png" th:href="@{/assets/logo.png}">
+    <link rel="stylesheet" href="../static/css/estilos.css" th:href="@{/css/estilos.css}">
 </head>
 
 <body>
-<div layout:fragment="conteudo">
-    <main class="container">
-        <section class="card form-card">
-            <h2 class="title">Tem certeza que quer sair do site?</h2>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <img src="../static/assets/logo.png" th:src="@{/assets/logo.png}" alt="Logo Voll.med">
+            </div>
+
+            <div class="logout-icon">🚪</div>
+
+            <h1 class="auth-title">Confirmar Saída</h1>
+
+            <p class="logout-message">
+                Tem certeza que deseja sair do sistema?<br>
+                <small style="color: #6c757d; font-size: 16px;">Você precisará fazer login novamente para acessar.</small>
+            </p>
+
             <form th:action="@{/logout}" method="post">
-                <div class="buttons">
-                    <a href="index.html" th:href="@{/}" class="btn btn-default">
-                        Voltar
+                <div class="auth-buttons">
+                    <a th:href="@{/}" class="auth-btn btn-secondary">
+                        Cancelar
                     </a>
-                    <button class="btn btn-danger">SAIR</button>
+                    <button type="submit" class="auth-btn btn-danger">
+                        Confirmar Saída
+                    </button>
                 </div>
             </form>
-        </section>
-    </main>
-</div>
+        </div>
+    </div>
 </body>
 </html>

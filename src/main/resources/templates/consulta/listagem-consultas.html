@@ -9,48 +9,66 @@
 
 <body>
     <div layout:fragment="conteudo">
-        <main class="container">
-            <section class="card">
-                <h2 class="title">Listagem de consultas</h2>
-
-                <div class="table-controls">
-                    <a href="formulario-consulta.html" th:href="@{/consultas/formulario}" class="btn btn-tertiary">
-                        <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
-                        Nova consulta
-                    </a>
+        <div class="main-container">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">Gerenciamento de Consultas</h1>
                 </div>
+            </div>
 
-                <table class="tabela">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>E-mail</th>
-                            <th>Telefone</th>
-                            <th>CPF</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
+            <main class="container">
+                <section class="modern-card">
+                    <div class="table-header">
+                        <h2 class="table-title">Listagem de consultas</h2>
+                        <a href="formulario-consulta.html" th:href="@{/consultas/formulario}" class="modern-btn modern-btn-success">
+                            <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
+                            Nova Consulta
+                        </a>
+                    </div>
 
-                    <tbody>
-                        <tr th:each="consulta: ${consultas}">
-                            <td th:text="${consulta.medico}"></td>
-                            <td th:text="${consulta.paciente}"></td>
-                            <td th:text="${#temporals.format(consulta.data, 'dd/MM/yyyy HH:mm')}"></td>
-                            <td  th:text="${consulta.especialidade}"></td>
-                            <td>
-                                <a href="#" class="btn btn-icon" th:href="@{/medicos/formulario?id={id}(id=${consulta.id})}" title="Editar">
-                                    <img src="/static/assets/edit.svg" th:src="@{/assets/edit.svg}" alt="Editar">
-                                </a>
-                                <a href="#deleteModal" class="btn btn-icon" data-toggle="modal" th:data-id="${consulta.id}" data-url="/consultas" title="Excluir">
-                                    <img src="/static/assets/delete.svg" th:src="@{/assets/delete.svg}" alt="Excluir">
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div th:replace="~{componentes/_paginacao.html :: paginacao(url = 'medicos', registros = ${consultas})}"></div>
-            </section>
-        </main>
+                    <table class="modern-table" th:if="${!consultas.empty}">
+                        <thead>
+                            <tr>
+                                <th>Médico</th>
+                                <th>Paciente</th>
+                                <th>Data/Hora</th>
+                                <th>Especialidade</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr th:each="consulta: ${consultas}">
+                                <td th:text="${consulta.medico}"></td>
+                                <td th:text="${consulta.paciente}"></td>
+                                <td th:text="${#temporals.format(consulta.data, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td th:text="${consulta.especialidade}"></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="#" class="action-btn edit" th:href="@{/consultas/formulario?id={id}(id=${consulta.id})}" title="Editar">
+                                            <img src="/static/assets/edit.svg" th:src="@{/assets/edit.svg}" alt="Editar">
+                                        </a>
+                                        <a href="#deleteModal" class="action-btn delete" data-toggle="modal" th:data-id="${consulta.id}" data-url="/consultas" title="Excluir">
+                                            <img src="/static/assets/delete.svg" th:src="@{/assets/delete.svg}" alt="Excluir">
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="empty-state" th:if="${consultas.empty}">
+                        <div class="empty-state-icon">📅</div>
+                        <p class="empty-state-text">Nenhuma consulta agendada ainda</p>
+                        <a href="formulario-consulta.html" th:href="@{/consultas/formulario}" class="modern-btn modern-btn-primary">
+                            Agendar Primeira Consulta
+                        </a>
+                    </div>
+
+                    <div th:replace="~{componentes/_paginacao.html :: paginacao(url = 'consultas', registros = ${consultas})}"></div>
+                </section>
+            </main>
+        </div>
 
         <div th:replace="~{componentes/_modal_excluir.html :: modal}"></div>
     </div>

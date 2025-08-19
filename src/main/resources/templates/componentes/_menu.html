@@ -1,40 +1,36 @@
 <header class="header" xmlns:th="http://thymeleaf.org" th:fragment="menu"
-        xmlns:sec="http://www.thymeleaf.org/extras/spring-security" >
-    <div class="container header-container">
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="header-container">
         <a href="../index.html" th:href="@{/}" class="logo">
             <img src="../../static/assets/logo.png" th:src="@{/assets/logo.png}" alt="Logo Voll">
         </a>
 
-        <nav class="main-nav">
-            <ul sec:authorize="isAuthenticated()" class="nav-left">
-                <li class="dropdown">
-                    <a href="#">CADASTROS <i class="arrow-down"></i></a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="../medico/listagem-medicos.html" th:href="@{/medicos}">Médicos</a>
-                        </li>
-
-                        <li>
-                            <a href="../consulta/listagem-consultas.html" th:href="@{/consultas}">Consultas</a>
-                        </li>
-                    </ul>
+        <nav class="main-nav" sec:authorize="isAuthenticated()">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../medico/listagem-medicos.html" th:href="@{/medicos}" class="nav-link">Médicos</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../consulta/listagem-consultas.html" th:href="@{/consultas}" class="nav-link">Consultas</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Pacientes</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Relatórios</a>
                 </li>
             </ul>
-            <ul sec:authorize="isAuthenticated()" class="nav-right">
-                <li class="dropdown">
-                    <a href="#">Olá, <span sec:authentication="principal.nome"></span> <i class="arrow-down"></i></a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <form class="navbar-form" th:action="@{/logout}" method="post">
-                                <button class="btn-link">SAIR</button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-            <div class="navbar-form" sec:authorize="!isAuthenticated()">
-                <a class="btn-link" href="#" th:href="@{/login}">Login</a>
-            </div>
         </nav>
+
+        <div class="nav-user">
+            <div sec:authorize="isAuthenticated()">
+                <span class="user-info">Olá, <span sec:authentication="principal.nome"></span></span>
+                <a th:href="@{/logout}" class="btn-logout">Sair</a>
+            </div>
+
+            <div sec:authorize="!isAuthenticated()">
+                <a class="btn-login" href="#" th:href="@{/login}">Login</a>
+            </div>
+        </div>
     </div>
 </header>

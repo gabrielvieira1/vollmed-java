@@ -9,58 +9,68 @@
 
 <body>
     <div layout:fragment="conteudo">
-        <main class="container">
-            <section class="card form-card">
-                <h2 class="title">Cadastro de médico</h2>
+        <div class="main-container">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">Cadastro de Médicos</h1>
+                </div>
+            </div>
 
-                <form method="post" action="#" th:action="@{/medicos}" th:object="${dados}">
-                    <input type="hidden" name="id" th:field="*{id}">
+            <main class="container">
+                <section class="modern-card">
+                    <h2 class="form-title">Dados do Médico</h2>
 
-                    <div class="form-group">
-                        <label for="nome">Nome:</label>
-                        <input id="nome" name="nome" th:field="*{nome}" required>
-                        <div class="alert alert-danger" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">Erro!</div>
-                    </div>
+                    <form method="post" action="#" th:action="@{/medicos}" th:object="${dados}">
+                        <input type="hidden" name="id" th:field="*{id}">
 
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input id="email" name="email" th:field="*{email}" required>
-                        <div class="alert alert-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-                    </div>
+                        <div class="modern-form-group">
+                            <label for="nome">Nome Completo</label>
+                            <input id="nome" name="nome" th:field="*{nome}" placeholder="Digite o nome completo do médico" required>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">❌</div>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="telefone">Telefone:</label>
-                        <input id="telefone" name="telefone" th:field="*{telefone}" required>
-                        <div class="alert alert-danger" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
-                    </div>
+                        <div class="modern-form-group">
+                            <label for="email">Email Profissional</label>
+                            <input id="email" name="email" type="email" th:field="*{email}" placeholder="exemplo@clinic.com.br" required>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">❌</div>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="crm">CRM:</label>
-                        <input id="crm" name="crm" th:field="*{crm}" required>
-                        <div class="alert alert-danger" th:if="${#fields.hasErrors('crm')}" th:errors="*{crm}"></div>
-                    </div>
+                        <div class="modern-form-group">
+                            <label for="telefone">Telefone</label>
+                            <input id="telefone" name="telefone" type="tel" th:field="*{telefone}" placeholder="(11) 99999-9999" required>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}">❌</div>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="especialidade">Especialidade</label>
-                        <select id="especialidade" name="especialidade" required th:field="*{especialidade}">
-                            <option th:value="${null}">Selecione uma especialidade</option>
-                            <option th:each="especialidade : ${especialidades}" th:value="${especialidade}" th:text="${especialidade}" th:selected="${dados.especialidade == especialidade}"></option>
-                        </select>
-                        <div class="alert alert-danger" th:if="${#fields.hasErrors('especialidade')}" th:errors="*{especialidade}"></div>
-                    </div>
+                        <div class="modern-form-group">
+                            <label for="crm">CRM</label>
+                            <input id="crm" name="crm" th:field="*{crm}" placeholder="123456/SP" required>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('crm')}" th:errors="*{crm}">❌</div>
+                        </div>
 
-                    <div class="buttons">
-                        <button type="submit" class="btn btn-primary">
-                            <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">Cadastrar
-                        </button>
+                        <div class="modern-form-group">
+                            <label for="especialidade">Especialidade</label>
+                            <select id="especialidade" name="especialidade" required th:field="*{especialidade}">
+                                <option th:value="${null}">Selecione uma especialidade</option>
+                                <option th:each="especialidade : ${especialidades}" th:value="${especialidade}" th:text="${especialidade}" th:selected="${dados.especialidade == especialidade}"></option>
+                            </select>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('especialidade')}" th:errors="*{especialidade}">❌</div>
+                        </div>
 
-                        <a href="listagem-medicos.html" th:href="@{/medicos}" class="btn btn-secondary">
-                            <img src="/static/assets/back.png" th:src="@{/assets/back.png}" alt="Voltar" class="btn-icon">Voltar
-                        </a>
-                    </div>
-                </form>
-            </section>
-        </main>
+                        <div class="modern-buttons">
+                            <button type="submit" class="modern-btn modern-btn-primary">
+                                <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
+                                Salvar Médico
+                            </button>
+
+                            <a href="listagem-medicos.html" th:href="@{/medicos}" class="modern-btn modern-btn-secondary">
+                                <img src="/static/assets/back.png" th:src="@{/assets/back.png}" alt="Voltar" class="btn-icon">
+                                Voltar
+                            </a>
+                        </div>
+                    </form>
+                </section>
+            </main>
+        </div>
     </div>
 </body>
 </html>

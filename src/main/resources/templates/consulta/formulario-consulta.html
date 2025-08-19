@@ -9,54 +9,64 @@
 
 <body>
     <div layout:fragment="conteudo">
-        <main class="container">
-            <section class="card form-card">
-                <h2 class="title">Agendamento de Consultas</h2>
+        <div class="main-container">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">Agendamento de Consultas</h1>
+                </div>
+            </div>
 
-                <form method="post" action="#" th:action="@{/consultas}" th:object="${dados}">
-                    <input type="hidden" name="id" th:field="*{id}">
+            <main class="container">
+                <section class="modern-card">
+                    <h2 class="form-title">Dados da Consulta</h2>
 
-                    <div class="form-group">
-                        <label for="especialidade">Especialidade</label>
-                        <select id="especialidade" name="especialidade" required th:field="*{especialidade}">
-                            <option th:value="${null}">Selecione uma especialidade</option>
-                            <option th:each="especialidade : ${especialidades}" th:value="${especialidade}" th:text="${especialidade}" th:selected="${dados.especialidade == especialidade}"></option>
-                        </select>
-                        <div class="alert alert-danger" th:if="${#fields.hasErrors('especialidade')}" th:errors="*{especialidade}"></div>
-                    </div>
+                    <form method="post" action="#" th:action="@{/consultas}" th:object="${dados}">
+                        <input type="hidden" name="id" th:field="*{id}">
 
-                    <div class="form-group">
-                        <label for="idMedico">Médico</label>
-                        <select id="idMedico" name="idMedico" required th:field="*{idMedico}">
-                            <option th:value="${null}">Selecione um médico</option>
-                        </select>
-                        <div class="alert alert-danger" th:if="${#fields.hasErrors('idMedico')}" th:errors="*{idMedico}">Erro!</div>
-                    </div>
+                        <div class="modern-form-group">
+                            <label for="especialidade">Especialidade</label>
+                            <select id="especialidade" name="especialidade" required th:field="*{especialidade}">
+                                <option th:value="${null}">Selecione uma especialidade</option>
+                                <option th:each="especialidade : ${especialidades}" th:value="${especialidade}" th:text="${especialidade}" th:selected="${dados.especialidade == especialidade}"></option>
+                            </select>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('especialidade')}" th:errors="*{especialidade}">❌</div>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="cpf">CPF do Paciente</label>
-                        <input type="text" id="cpf" placeholder="Digite o CPF do paciente" required th:field="*{paciente}">
-                        <div class="alert alert-danger" th:if="${#fields.hasErrors('paciente')}" th:errors="*{paciente}"></div>
-                    </div>
+                        <div class="modern-form-group">
+                            <label for="idMedico">Médico</label>
+                            <select id="idMedico" name="idMedico" required th:field="*{idMedico}">
+                                <option th:value="${null}">Selecione um médico</option>
+                            </select>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('idMedico')}" th:errors="*{idMedico}">❌</div>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="data">Data</label>
-                        <input type="datetime-local" id="data" required th:field="*{data}">
-                        <div class="alert alert-danger" th:if="${#fields.hasErrors('data')}" th:errors="*{data}"></div>
-                    </div>
+                        <div class="modern-form-group">
+                            <label for="cpf">CPF do Paciente</label>
+                            <input type="text" id="cpf" placeholder="000.000.000-00" required th:field="*{paciente}">
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('paciente')}" th:errors="*{paciente}">❌</div>
+                        </div>
 
-                    <div class="buttons">
-                        <button type="submit" class="btn btn-primary">
-                            <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">Cadastrar
-                        </button>
+                        <div class="modern-form-group">
+                            <label for="data">Data e Horário</label>
+                            <input type="datetime-local" id="data" required th:field="*{data}">
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('data')}" th:errors="*{data}">❌</div>
+                        </div>
 
-                        <a href="listagem-consultas.html" th:href="@{/consultas}" class="btn btn-secondary">
-                            <img src="/static/assets/back.png" th:src="@{/assets/back.png}" alt="Voltar" class="btn-icon">Voltar
-                        </a>
-                    </div>
-                </form>
-            </section>
-        </main>
+                        <div class="modern-buttons">
+                            <button type="submit" class="modern-btn modern-btn-primary">
+                                <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
+                                Agendar Consulta
+                            </button>
+
+                            <a href="listagem-consultas.html" th:href="@{/consultas}" class="modern-btn modern-btn-secondary">
+                                <img src="/static/assets/back.png" th:src="@{/assets/back.png}" alt="Voltar" class="btn-icon">
+                                Voltar
+                            </a>
+                        </div>
+                    </form>
+                </section>
+            </main>
+        </div>
     </div>
 </body>
 </html>

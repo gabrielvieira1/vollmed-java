@@ -2,6 +2,7 @@
 <html lang="pt"
       xmlns:th="http://thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{template.html}">
 <head>
     <title>Voll.med</title>
@@ -18,6 +19,15 @@
 
                     <h2 class="hero-title">Encontre profissionais de <span>diversas especialidades</span></h2>
                     <p class="hero-subtitle">e agende sua consulta com facilidade</p>
+
+                    <div sec:authorize="!isAuthenticated()" class="hero-actions">
+                        <a th:href="@{/login}" class="hero-login-btn">
+                            Fazer Login
+                        </a>
+                        <a th:href="@{/registro}" class="hero-login-btn">
+                            Criar Conta
+                        </a>
+                    </div>
                 </div>
 
                 <div class="hero-image">

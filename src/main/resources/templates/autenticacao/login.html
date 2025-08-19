@@ -1,52 +1,58 @@
 <!DOCTYPE html>
 <html lang="pt-br"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{template.html}">
+      xmlns:th="http://thymeleaf.org">
 <head>
-    <title>Login</title>
+    <title>Login - Voll.med</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../static/assets/logo.png" th:href="@{/assets/logo.png}">
+    <link rel="stylesheet" href="../static/css/estilos.css" th:href="@{/css/estilos.css}">
 </head>
 
 <body>
-<div layout:fragment="conteudo">
-    <main class="container">
-        <section class="card form-card">
-            <h2 class="title">Login</h2>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <img src="../static/assets/logo.png" th:src="@{/assets/logo.png}" alt="Logo Voll.med">
+            </div>
+
+            <h1 class="auth-title">Entrar</h1>
 
             <form method="post" action="#" th:action="@{/login}">
-                <div class="alert alert-danger text-center text-uppercase" th:if="${param.error != null}">
-                    <p>
-                        <strong>Dados inválidos!</strong>
-                    </p>
+                <div class="auth-alert alert-danger" th:if="${param.error != null}">
+                    ❌ Dados inválidos! Verifique seu email e senha.
                 </div>
 
-                <div class="alert alert-danger text-center text-uppercase" th:if="${param.logout != null}">
-                    <p>
-                        <strong>Você saiu da aplicação!</strong>
-                    </p>
+                <div class="auth-alert alert-success" th:if="${param.logout != null}">
+                    ✅ Você saiu da aplicação com sucesso!
                 </div>
 
-                <div class="form-group">
-                    <label for="username" class="required">Email:</label>
-                    <input id="username" name="username" type="email" class="form-control" required="required">
+                <div class="auth-alert alert-success" th:if="${mensagemSucesso}">
+                    ✅ <span th:text="${mensagemSucesso}">Mensagem de sucesso</span>
                 </div>
 
-                <div class="form-group">
-                    <label for="password" class="required">Senha:</label>
-                    <input id="password" name="password" type="password" class="form-control" required="required">
+                <div class="auth-form-group">
+                    <label for="username">Email</label>
+                    <input id="username" name="username" type="email" placeholder="Digite seu email" required>
                 </div>
 
-<!--                <div class="form-group">-->
-<!--                    <label for="remember-me" class="required">Lembrar de mim:</label>-->
-<!--                    <input id="remember-me" name="remember-me" type="checkbox" class="form-control">-->
-<!--                </div>-->
+                <div class="auth-form-group">
+                    <label for="password">Senha</label>
+                    <input id="password" name="password" type="password" placeholder="Digite sua senha" required>
+                </div>
 
-                <button class="btn btn-primary" title="Entrar">
+                <button type="submit" class="auth-btn">
                     Entrar
                 </button>
             </form>
-        </section>
-    </main>
-</div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <p style="color: #6c757d; margin-bottom: 15px;">Não tem uma conta ainda?</p>
+                <a th:href="@{/registro}" class="auth-link">Criar Conta →</a>
+                <br><br>
+                <a th:href="@{/}" class="auth-link">← Voltar para página inicial</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
