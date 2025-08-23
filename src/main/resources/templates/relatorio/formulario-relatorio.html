@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+ layout:decorate="~{template.html}">
+
+<head>
+ <title>Cadastro de Relatório</title>
+</head>
+
+<body>
+ <div layout:fragment="conteudo">
+  <div class="main-container">
+   <div class="page-header">
+    <div class="container">
+     <h1 class="page-title" th:text="${dados.id != null ? 'Editar Relatório' : 'Novo Relatório'}">Novo Relatório</h1>
+    </div>
+   </div>
+
+   <main class="container">
+    <!-- Mensagens de feedback -->
+    <div th:replace="~{componentes/_mensagens :: mensagens}"></div>
+
+    <section class="modern-card">
+     <div class="form-header">
+      <h2 class="form-title" th:text="${dados.id != null ? 'Edição de relatório' : 'Cadastro de novo relatório'}">
+       Cadastro de novo relatório</h2>
+     </div>
+
+     <form th:action="${dados.id != null ? '/relatorios/atualizar/' + dados.id : '/relatorios'}" th:object="${dados}"
+      method="post" class="modern-form">
+
+      <!-- Seleção de Consulta -->
+      <div class="form-group">
+       <label for="consultaId" class="form-label">Consulta *</label>
+       <select th:field="*{consultaId}" id="consultaId" class="form-control" required>
+        <option value="">Selecione uma consulta</option>
+        <option th:each="consulta : ${consultas}" th:value="${consulta.id}"
+         th:text="|${consulta.paciente} - ${consulta.data}|" th:selected="${consulta.id == dados.consultaId}">
+        </option>
+       </select>
+       <div th:if="${#fields.hasErrors('consultaId')}" class="error-message">
+        <span th:errors="*{consultaId}"></span>
+       </div>
+      </div>
+
+      <!-- Seleção de Médico -->
+      <div class="form-group">
+       <label for="medicoId" class="form-label">Médico *</label>
+       <select th:field="*{medicoId}" id="medicoId" class="form-control" required>
+        <option value="">Selecione um médico</option>
+        <option th:each="medico : ${medicos}" th:value="${medico.id}"
+         th:text="|${medico.nome} - ${medico.especialidade}|" th:selected="${medico.id == dados.medicoId}">
+        </option>
+       </select>
+       <div th:if="${#fields.hasErrors('medicoId')}" class="error-message">
+        <span th:errors="*{medicoId}"></span>
+       </div>
+      </div>
+
+      <!-- Diagnóstico -->
+      <div class="form-group">
+       <label for="diagnostico" class="form-label">Diagnóstico *</label>
+       <textarea th:field="*{diagnostico}" id="diagnostico" class="form-control" rows="3"
+        placeholder="Descreva o diagnóstico médico" required></textarea>
+       <div th:if="${#fields.hasErrors('diagnostico')}" class="error-message">
+        <span th:errors="*{diagnostico}"></span>
+       </div>
+      </div>
+
+      <!-- Procedimento -->
+      <div class="form-group">
+       <label for="procedimento" class="form-label">Procedimento</label>
+       <textarea th:field="*{procedimento}" id="procedimento" class="form-control" rows="3"
+        placeholder="Descreva os procedimentos realizados"></textarea>
+       <div th:if="${#fields.hasErrors('procedimento')}" class="error-message">
+        <span th:errors="*{procedimento}"></span>
+       </div>
+      </div>
+
+      <!-- Histórico Familiar -->
+      <div class="form-group">
+       <label for="historicoFamiliar" class="form-label">Histórico Familiar</label>
+       <textarea th:field="*{historicoFamiliar}" id="historicoFamiliar" class="form-control" rows="3"
+        placeholder="Histórico familiar relevante"></textarea>
+       <div th:if="${#fields.hasErrors('historicoFamiliar')}" class="error-message">
+        <span th:errors="*{historicoFamiliar}"></span>
+       </div>
+      </div>
+
+      <!-- Medicação -->
+      <div class="form-group">
+       <label for="medicacao" class="form-label">Medicação</label>
+       <textarea th:field="*{medicacao}" id="medicacao" class="form-control" rows="3"
+        placeholder="Medicações prescritas"></textarea>
+       <div th:if="${#fields.hasErrors('medicacao')}" class="error-message">
+        <span th:errors="*{medicacao}"></span>
+       </div>
+      </div>
+
+      <!-- Observações Médicas -->
+      <div class="form-group">
+       <label for="observacoesMedicas" class="form-label">Observações Médicas</label>
+       <textarea th:field="*{observacoesMedicas}" id="observacoesMedicas" class="form-control" rows="4"
+        placeholder="Observações adicionais do médico"></textarea>
+       <div th:if="${#fields.hasErrors('observacoesMedicas')}" class="error-message">
+        <span th:errors="*{observacoesMedicas}"></span>
+       </div>
+      </div>
+
+      <!-- Número SUS -->
+      <div class="form-group">
+       <label for="numeroSUS" class="form-label">Número SUS *</label>
+       <input th:field="*{numeroSUS}" type="text" id="numeroSUS" class="form-control"
+        placeholder="Número do SUS do paciente" maxlength="15" required>
+       <div th:if="${#fields.hasErrors('numeroSUS')}" class="error-message">
+        <span th:errors="*{numeroSUS}"></span>
+       </div>
+      </div>
+
+      <!-- CPF do Paciente -->
+      <div class="form-group">
+       <label for="cpfPaciente" class="form-label">CPF do Paciente *</label>
+       <input th:field="*{cpfPaciente}" type="text" id="cpfPaciente" class="form-control" placeholder="000.000.000-00"
+        maxlength="14" required>
+       <div th:if="${#fields.hasErrors('cpfPaciente')}" class="error-message">
+        <span th:errors="*{cpfPaciente}"></span>
+       </div>
+      </div>
+
+      <!-- Botões de ação -->
+      <div class="form-actions">
+       <button type="submit" class="modern-btn modern-btn-primary">
+        <span th:text="${dados.id != null ? 'Atualizar Relatório' : 'Cadastrar Relatório'}">Cadastrar Relatório</span>
+       </button>
+       <a href="/relatorios" class="modern-btn modern-btn-secondary">
+        Cancelar
+       </a>
+      </div>
+     </form>
+    </section>
+   </main>
+  </div>
+ </div>
+</body>
+
+</html>
