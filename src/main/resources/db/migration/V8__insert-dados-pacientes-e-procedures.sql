@@ -16,15 +16,15 @@ DELIMITER //
 CREATE PROCEDURE search_patient_vulnerable(IN patient_name VARCHAR(255))
 BEGIN
     DECLARE sql_query TEXT;
-    
+
     -- ❌ VULNERABILIDADE: Concatenação direta sem sanitização
     -- Permite injeção SQL através do parâmetro patient_name
     SET sql_query = CONCAT('SELECT id, nome, email, telefone, cpf, data_nascimento, plano_saude FROM pacientes WHERE nome LIKE "%', patient_name, '%" AND ativo = true ORDER BY nome');
-    
+
     -- Log da query para demonstração (não faça isso em produção!)
-    INSERT INTO logs_audit (query_executada, timestamp) VALUES (sql_query, NOW()) 
+    INSERT INTO logs_audit (query_executada, timestamp) VALUES (sql_query, NOW())
     ON DUPLICATE KEY UPDATE query_executada = query_executada;
-    
+
     SET @sql = sql_query;
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
@@ -45,10 +45,10 @@ DELIMITER //
 CREATE PROCEDURE search_patient_secure(IN patient_name VARCHAR(255))
 BEGIN
     -- ✅ SEGURA: Usando parâmetros preparados
-    SELECT id, nome, email, telefone, cpf, data_nascimento, plano_saude 
-    FROM pacientes 
-    WHERE nome LIKE CONCAT('%', patient_name, '%') 
-    AND ativo = true 
+    SELECT id, nome, email, telefone, cpf, data_nascimento, plano_saude
+    FROM pacientes
+    WHERE nome LIKE CONCAT('%', patient_name, '%')
+    AND ativo = true
     ORDER BY nome;
 END //
 DELIMITER ;
