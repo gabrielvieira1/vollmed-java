@@ -2,10 +2,10 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
+      - id: trailing-whitespace       # Remove espaços em branco no final das linhas
+      - id: end-of-file-fixer         # Garante que arquivos terminem com uma nova linha
+      - id: check-yaml                # Valida sintaxe de arquivos YAML
+      - id: check-added-large-files   # Impede commit de arquivos grandes (>500kB)
 
   - repo: local
     hooks:
@@ -39,18 +39,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: vulnerability-summary-ai
-        name: Generate AI Vulnerability Summary
-        description: Generates a Markdown summary of security scan results using the Gemini API.
-        entry: python3 scripts/vulnerability_summary.py
-        language: python
-        stages: [pre-commit]
-        pass_filenames: false
-        always_run: true
-        additional_dependencies: [google-generativeai, python-dotenv]
-
-  - repo: local
-    hooks:
       - id: vulnerability-summary
         name: Security Summary Report
         description: Display executive security summary using custom script
@@ -60,6 +48,18 @@ repos:
         pass_filenames: false
         always_run: true
         verbose: true
+
+  - repo: local
+    hooks:
+      - id: vulnerability-summary-ai
+        name: Generate AI Vulnerability Summary
+        description: Generates a Markdown summary of security scan results using the Gemini API.
+        entry: python3 scripts/vulnerability_summary.py
+        language: python
+        stages: [pre-commit]
+        pass_filenames: false
+        always_run: true
+        additional_dependencies: [google-generativeai, python-dotenv]
 
   # - repo: local
   #   hooks:

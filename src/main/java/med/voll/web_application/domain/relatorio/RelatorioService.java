@@ -24,8 +24,8 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import med.voll.web_application.domain.RegraDeNegocioException;
 import med.voll.web_application.domain.consulta.ConsultaRepository;
+import med.voll.web_application.domain.exception.RegraDeNegocioException;
 import med.voll.web_application.domain.medico.MedicoRepository;
 
 @Service

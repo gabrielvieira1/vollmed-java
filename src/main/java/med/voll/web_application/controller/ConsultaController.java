@@ -1,16 +1,21 @@
 package med.voll.web_application.controller;
 
-import jakarta.validation.Valid;
-import med.voll.web_application.domain.RegraDeNegocioException;
-import med.voll.web_application.domain.consulta.ConsultaService;
-import med.voll.web_application.domain.consulta.DadosAgendamentoConsulta;
-import med.voll.web_application.domain.medico.Especialidade;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import jakarta.validation.Valid;
+import med.voll.web_application.domain.consulta.ConsultaService;
+import med.voll.web_application.domain.consulta.DadosAgendamentoConsulta;
+import med.voll.web_application.domain.exception.RegraDeNegocioException;
+import med.voll.web_application.domain.medico.Especialidade;
 
 @Controller
 @RequestMapping("consultas")
@@ -22,7 +27,7 @@ public class ConsultaController {
 
     private final ConsultaService service;
 
-    public ConsultaController(ConsultaService consultaService){
+    public ConsultaController(ConsultaService consultaService) {
         this.service = consultaService;
     }
 
@@ -50,7 +55,8 @@ public class ConsultaController {
     }
 
     @PostMapping
-    public String cadastrar(@Valid @ModelAttribute("dados") DadosAgendamentoConsulta dados, BindingResult result, Model model) {
+    public String cadastrar(@Valid @ModelAttribute("dados") DadosAgendamentoConsulta dados, BindingResult result,
+            Model model) {
         if (result.hasErrors()) {
             model.addAttribute("dados", dados);
             return PAGINA_CADASTRO;

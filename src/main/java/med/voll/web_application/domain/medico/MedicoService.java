@@ -1,14 +1,15 @@
 package med.voll.web_application.domain.medico;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
-import jakarta.transaction.Transactional;
-import med.voll.web_application.domain.RegraDeNegocioException;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+import jakarta.transaction.Transactional;
+import med.voll.web_application.domain.exception.RegraDeNegocioException;
 
 @Service
 public class MedicoService {
@@ -41,7 +42,8 @@ public class MedicoService {
 
     public DadosCadastroMedico carregarPorId(Long id) {
         var medico = repository.findById(id).orElseThrow();
-        return new DadosCadastroMedico(medico.getId(), medico.getNome(), medico.getEmail(), medico.getTelefone(), medico.getCrm(), medico.getEspecialidade());
+        return new DadosCadastroMedico(medico.getId(), medico.getNome(), medico.getEmail(), medico.getTelefone(),
+                medico.getCrm(), medico.getEspecialidade());
     }
 
     @Transactional
