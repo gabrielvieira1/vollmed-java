@@ -39,7 +39,7 @@ repos:
 
   - repo: local
     hooks:
-      - id: vulnerability-summary
+      - id: vulnerability-summary-ai
         name: Generate AI Vulnerability Summary
         description: Generates a Markdown summary of security scan results using the Gemini API.
         entry: python3 scripts/vulnerability_summary.py
@@ -48,6 +48,18 @@ repos:
         pass_filenames: false
         always_run: true
         additional_dependencies: [google-generativeai, python-dotenv]
+
+  - repo: local
+    hooks:
+      - id: vulnerability-summary
+        name: Security Summary Report
+        description: Display executive security summary using custom script
+        entry: bash -c "echo '📊 Gerando resumo executivo de segurança...' && chmod +x ./scripts/security-summary.sh && ./scripts/security-summary.sh && echo '✅ Resumo de segurança concluído'"
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
+        always_run: true
+        verbose: true
 
   # - repo: local
   #   hooks:

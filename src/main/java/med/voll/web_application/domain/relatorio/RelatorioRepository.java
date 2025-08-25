@@ -13,7 +13,7 @@ public interface RelatorioRepository extends JpaRepository<Relatorio, Long> {
 
  /**
   * CONSULTA VULNERÁVEL - Para fins educacionais
-  * 
+  *
   * Esta query permite buscar relatórios por médico ID sem validação adequada
   * de autorização, podendo expor dados de outros médicos.
   */
@@ -22,7 +22,7 @@ public interface RelatorioRepository extends JpaRepository<Relatorio, Long> {
 
  /**
   * CONSULTA VULNERÁVEL - Para fins educacionais
-  * 
+  *
   * Busca relatórios por período sem controle de acesso adequado
   */
  @Query("SELECT r FROM Relatorio r WHERE r.dataGeracao BETWEEN :dataInicio AND :dataFim")
@@ -33,7 +33,7 @@ public interface RelatorioRepository extends JpaRepository<Relatorio, Long> {
 
  /**
   * CONSULTA VULNERÁVEL - Para fins educacionais
-  * 
+  *
   * Busca por CPF sem validação adequada - pode expor dados sensíveis
   */
  @Query("SELECT r FROM Relatorio r WHERE r.cpfPaciente = :cpf")

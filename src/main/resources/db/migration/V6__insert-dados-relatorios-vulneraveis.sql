@@ -5,20 +5,20 @@
 -- Em um sistema real, dados sensíveis nunca deveriam estar em scripts de migração
 
 INSERT INTO relatorios (
-    consulta_id, 
-    medico_id, 
-    diagnostico, 
-    procedimento, 
-    historico_familiar, 
-    medicacao, 
-    observacoes_medicas, 
+    consulta_id,
+    medico_id,
+    diagnostico,
+    procedimento,
+    historico_familiar,
+    medicacao,
+    observacoes_medicas,
     data_geracao,
     numero_sus,
     cpf_paciente
-) VALUES 
+) VALUES
 (
     1,
-    1, 
+    1,
     'Hipertensão arterial sistêmica - CID I10',
     'Consulta de rotina e ajuste de medicação anti-hipertensiva',
     'Pai: infarto do miocárdio aos 55 anos. Mãe: diabetes tipo 2. Avó paterna: AVC.',
@@ -69,17 +69,17 @@ INSERT INTO relatorios (
 -- Inserindo diagnósticos idênticos para mostrar padrões na criptografia ECB
 
 INSERT INTO relatorios (
-    consulta_id, 
-    medico_id, 
-    diagnostico, 
-    procedimento, 
-    historico_familiar, 
-    medicacao, 
-    observacoes_medicas, 
+    consulta_id,
+    medico_id,
+    diagnostico,
+    procedimento,
+    historico_familiar,
+    medicacao,
+    observacoes_medicas,
     data_geracao,
     numero_sus,
     cpf_paciente
-) VALUES 
+) VALUES
 (
     1,
     1,

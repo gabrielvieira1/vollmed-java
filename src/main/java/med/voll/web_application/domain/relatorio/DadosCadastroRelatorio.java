@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * DTO para cadastro de relatórios - VULNERÁVEL para fins educacionais
- * 
+ *
  * Este DTO não possui validações adequadas para dados sensíveis de saúde
  */
 public record DadosCadastroRelatorio(
@@ -31,7 +31,7 @@ public record DadosCadastroRelatorio(
 
   /**
    * MÉTODO VULNERÁVEL - Para fins educacionais
-   * 
+   *
    * Este método expõe dados sensíveis em logs através do toString()
    */
   @Override

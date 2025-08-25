@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * DTO para listagem de relatórios - VULNERÁVEL para fins educacionais
- * 
+ *
  * Este DTO expõe dados sensíveis que não deveriam ser transmitidos
  */
 public record DadosListagemRelatorio(
@@ -29,7 +29,7 @@ public record DadosListagemRelatorio(
 
  /**
   * MÉTODO VULNERÁVEL - Para fins educacionais
-  * 
+  *
   * Método que retorna dados sensíveis sem mascaramento
   */
  public String getCpfCompleto() {
@@ -38,7 +38,7 @@ public record DadosListagemRelatorio(
 
  /**
   * MÉTODO VULNERÁVEL - Para fins educacionais
-  * 
+  *
   * Retorna número SUS completo sem proteção
   */
  public String getSUSCompleto() {

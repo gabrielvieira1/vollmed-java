@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 /**
  * ENTIDADE VULNERÁVEL - Para fins educacionais
- * 
+ *
  * Esta entidade armazena dados sensíveis de saúde que serão criptografados
  * de forma insegura para demonstração de vulnerabilidades.
  */
