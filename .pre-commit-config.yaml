@@ -7,10 +7,15 @@ repos:
       - id: check-yaml                # Valida sintaxe de arquivos YAML
       - id: check-added-large-files   # Impede commit de arquivos grandes (>500kB)
 
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.4  # Versão compatível com Go mais antigo
+  - repo: local
     hooks:
-      - id: gitleaks
+      - id: secure-dependencies
+        name: Snyk Security Scan
+        description: Multi-language dependency vulnerability scanning with Snyk via Docker
+        entry: bash -c "echo '🛡️  Executando Snyk Security Scan via Docker...' && mkdir -p logs && if [ -f .env ]; then export $(grep -v '^#' .env | xargs); fi; if [ -n \"$SNYK_TOKEN\" ]; then docker run --rm -e SNYK_TOKEN=\"$SNYK_TOKEN\" -v $(pwd):/project -w /project snyk/snyk:java snyk test --package-manager=maven --severity-threshold=high --json > logs/snyk.log 2>&1; EXIT_CODE=$?; else echo '⚠️  SNYK_TOKEN não encontrado. Configure seu token em .env'; echo 'Executando sem autenticação (funcionalidade limitada)...'; docker run --rm -v $(pwd):/project -w /project snyk/snyk:java snyk test --package-manager=maven --severity-threshold=high --json > logs/snyk.log 2>&1; EXIT_CODE=$?; fi; echo '📋 Resultados salvos em logs/snyk.log'; exit $EXIT_CODE"
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
 
   - repo: local
     hooks:
@@ -21,16 +26,16 @@ repos:
           bash -c '
           # Caminho para instalação local
           DC_PATH="/home/gabriel/dependency-check/bin/dependency-check.sh"
-          
+
           # Verificar se a instalação local existe
           if [ ! -f "$DC_PATH" ]; then
               echo "❌ Dependency-Check não encontrado em: $DC_PATH"
               exit 1
           fi
-          
+
           # Criar diretórios necessários
           mkdir -p reports logs
-          
+
           # Executar dependency-check local com base já baixada
           $DC_PATH \
               --scan . \
@@ -39,26 +44,80 @@ repos:
               --out ./reports \
               --noupdate \
               > logs/dependency-check.log 2>&1
-          
+
           EXIT_CODE=$?
-          
+
           # Verificar se há vulnerabilidades críticas ou altas
           if [ $EXIT_CODE -eq 0 ] && [ -f reports/dependency-check-report.json ]; then
               if command -v jq &> /dev/null; then
                   CRITICAL=$(jq "[.dependencies[]? | select(.vulnerabilities?) | .vulnerabilities[] | select(.severity? == \"CRITICAL\")] | length" reports/dependency-check-report.json 2>/dev/null || echo "0")
                   HIGH=$(jq "[.dependencies[]? | select(.vulnerabilities?) | .vulnerabilities[] | select(.severity? == \"HIGH\")] | length" reports/dependency-check-report.json 2>/dev/null || echo "0")
-                  
+
                   if [ "$CRITICAL" != "0" ] || [ "$HIGH" != "0" ]; then
                       echo "🚨 Vulnerabilidades CRITICAL ($CRITICAL) ou HIGH ($HIGH) detectadas"
                       EXIT_CODE=1
                   fi
               fi
           fi
-          
+
           echo "📋 Log completo: logs/dependency-check.log"
-          
+
           exit $EXIT_CODE
           '
         language: system
         stages: [pre-commit]
         pass_filenames: false
+
+  - repo: local
+    hooks:
+      - id: gitleaks-local
+        name: GitLeaks Secrets Scanner
+        description: Detect hardcoded secrets like passwords, api keys, and tokens in git repos
+        entry: bash -c "echo '🕵️  Executando GitLeaks via Docker...' && mkdir -p logs && docker run --rm -v $(pwd):/path zricethezav/gitleaks:latest detect --source=/path --no-git --verbose > logs/gitleaks.log 2>&1; EXIT_CODE=$?; echo '📋 Resultados salvos em logs/gitleaks.log'; exit $EXIT_CODE"
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - id: semgrep-sast
+        name: Semgrep SAST Scanner
+        description: Static analysis security testing with Semgrep
+        entry: bash -c "echo '🔎 Executando Semgrep SAST via Docker...' && mkdir -p logs && docker run --rm -v $(pwd):/src returntocorp/semgrep semgrep --config=auto --error --json /src > logs/semgrep.log 2>&1; EXIT_CODE=$?; echo '📋 Resultados salvos em logs/semgrep.log'; exit $EXIT_CODE"
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - id: vulnerability-summary
+        name: Security Summary Report
+        description: Display executive security summary using custom script
+        entry: bash -c "echo '📊 Gerando resumo executivo de segurança...' && chmod +x ./scripts/security-summary.sh && ./scripts/security-summary.sh && echo '✅ Resumo de segurança concluído'"
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
+        always_run: true
+        verbose: true
+
+  - repo: local
+    hooks:
+      - id: vulnerability-summary-ai
+        name: Generate AI Vulnerability Summary
+        description: Generates a Markdown summary of security scan results using the Gemini API.
+        entry: python3 scripts/vulnerability_summary.py
+        language: python
+        stages: [pre-commit]
+        pass_filenames: false
+        always_run: true
+        additional_dependencies: [google-generativeai, python-dotenv]
+
+  # - repo: local
+  #   hooks:
+  #     - id: bandit-python-sast
+  #       name: Bandit Python Security Scanner
+  #       description: Security linter for Python code
+  #       entry: bash -c "echo '🐍 Executando Bandit Python SAST...' && mkdir -p logs && if find . -name '*.py' -not -path './.git/*' -not -path './logs/*' | head -1 | grep -q .; then docker run --rm -v $(pwd):/src --workdir /src python:3.11-slim bash -c 'pip install bandit > /dev/null 2>&1 && bandit -r . -f json' > logs/bandit.log 2>&1; EXIT_CODE=$?; if [ $EXIT_CODE -ne 0 ]; then echo '❌ Vulnerabilidades Python encontradas!'; fi; echo '📋 Resultados salvos em logs/bandit.log'; exit $EXIT_CODE; else echo 'ℹ️  Nenhum arquivo Python encontrado, pulando Bandit...'; exit 0; fi"
+  #       language: system
+  #       stages: [pre-commit]
+  #       pass_filenames: false

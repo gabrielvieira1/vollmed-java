@@ -44,12 +44,6 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
 
-  # Detecção de secrets e credenciais
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.4
-    hooks:
-      - id: gitleaks
-
   # Análise de dependências OWASP (instalação local)
   - repo: local
     hooks:

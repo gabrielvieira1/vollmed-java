@@ -74,3 +74,8 @@ dependency-check-report.*
 /scripts/reports/*.md
 # Relatórios de vulnerabilidade gerados
 /scripts/reports/
+reports/
+data/
+
+# OWASP Dependency-Check cache
+data/
