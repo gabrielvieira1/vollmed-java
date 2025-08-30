@@ -70,11 +70,27 @@ jobs:
 
       - name: 🔍 Run GitLeaks Scan
         id: gitleaks-scan
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: --verbose --redact --no-git --source=. --report-format=json --report-path=gitleaks-report.json
+        run: |
+          echo "🕵️ Executando GitLeaks via Docker (mesmo método do pre-commit)..."
+          
+          # Criar diretórios necessários
+          mkdir -p logs
+          
+          # Executar GitLeaks via Docker - MESMO COMANDO DO PRE-COMMIT
+          docker run --rm \
+            -v $(pwd):/path \
+            zricethezav/gitleaks:latest \
+            detect --source=/path --no-git --verbose --report-format=json --report-path=/path/gitleaks-report.json || echo "GITLEAKS_FAILED=true" >> $GITHUB_ENV
+          
+          # Também gerar SARIF para compatibilidade com GitHub Security
+          if [ -f "gitleaks-report.json" ]; then
+            docker run --rm \
+              -v $(pwd):/path \
+              zricethezav/gitleaks:latest \
+              detect --source=/path --no-git --report-format=sarif --report-path=/path/results.sarif || true
+          fi
+          
+          echo "📋 Resultados salvos em gitleaks-report.json e results.sarif"
         continue-on-error: true
 
       - name: 📋 Generate Human-Readable Report
