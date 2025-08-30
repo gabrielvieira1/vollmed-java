@@ -229,7 +229,7 @@ jobs:
   security-summary:
     name: 📋 Security Summary & Notification
     runs-on: ubuntu-latest
-    needs: [gitleaks, semgrep, snyk, dependency-check]
+    needs: [gitleaks, semgrep, snyk]
     if: always()
     
     steps:
