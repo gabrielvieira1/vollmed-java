@@ -127,12 +127,8 @@ jobs:
       - name: 📊 GitLeaks Results Summary
         if: always()
         run: |
-          if [ "${{ steps.gitleaks-scan.outcome }}" = "success" ]; then
-            echo "## ✅ GitLeaks - Secret Detection" >> $GITHUB_STEP_SUMMARY
-            echo "- 🟢 **Status**: No secrets detected" >> $GITHUB_STEP_SUMMARY
-            echo "- 🔍 **Scan Mode**: Full repository scan (all files)" >> $GITHUB_STEP_SUMMARY
-            echo "- 📄 **Report**: Check artifacts for detailed results" >> $GITHUB_STEP_SUMMARY
-          else
+          # Verificar se GitLeaks encontrou vulnerabilidades (exit code > 0 OU variável GITLEAKS_FAILED)
+          if [[ "$GITLEAKS_FAILED" == "true" ]] || [[ "${{ steps.gitleaks-scan.outcome }}" == "failure" ]]; then
             echo "## ❌ GitLeaks - Secret Detection" >> $GITHUB_STEP_SUMMARY
             echo "- 🔴 **Status**: Secrets detected!" >> $GITHUB_STEP_SUMMARY
             echo "- 🔍 **Scan Mode**: Full repository scan (all files)" >> $GITHUB_STEP_SUMMARY
@@ -146,6 +142,11 @@ jobs:
             fi
             
             echo "- 📖 **Documentation**: [GitLeaks Documentation](https://github.com/gitleaks/gitleaks)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ✅ GitLeaks - Secret Detection" >> $GITHUB_STEP_SUMMARY
+            echo "- 🟢 **Status**: No secrets detected" >> $GITHUB_STEP_SUMMARY
+            echo "- 🔍 **Scan Mode**: Full repository scan (all files)" >> $GITHUB_STEP_SUMMARY
+            echo "- 📄 **Report**: Check artifacts for detailed results" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
 
