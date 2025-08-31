@@ -155,6 +155,15 @@ jobs:
               echo "- 📋 **Details**: Download artifacts for full analysis" >> $GITHUB_STEP_SUMMARY
             fi
             
+            # Falhar o job se não estiver em test mode
+            if [[ "${{ env.TEST_MODE }}" != "true" ]]; then
+              echo "::error title=Secrets Found::GitLeaks detected secrets in the codebase"
+              exit 1
+            else
+              echo "::warning title=Test Mode - Secrets Found::GitLeaks detected secrets but continuing in test mode"
+            fi
+            fi
+            
             echo "- 📖 **Documentation**: [GitLeaks Documentation](https://github.com/gitleaks/gitleaks)" >> $GITHUB_STEP_SUMMARY
           else
             echo "## ✅ GitLeaks - Secret Detection" >> $GITHUB_STEP_SUMMARY
@@ -233,6 +242,14 @@ jobs:
               if [ "$TOTAL_ISSUES" -gt "0" ]; then
                 echo "- 🔴 **Status**: Vulnerabilities detected" >> $GITHUB_STEP_SUMMARY
                 echo "- 📋 **Action**: Review findings in job logs" >> $GITHUB_STEP_SUMMARY
+                
+                # Falhar o job se não estiver em test mode
+                if [[ "${{ env.TEST_MODE }}" != "true" ]]; then
+                  echo "::error title=SAST Issues Found::Semgrep detected $TOTAL_ISSUES security issues"
+                  exit 1
+                else
+                  echo "::warning title=Test Mode - SAST Issues Found::Semgrep detected $TOTAL_ISSUES security issues but continuing in test mode"
+                fi
               else
                 echo "- 🟢 **Status**: No issues found" >> $GITHUB_STEP_SUMMARY
               fi
@@ -338,6 +355,19 @@ jobs:
               if [ "$CRITICAL_VULNS" -gt "0" ] || [ "$HIGH_VULNS" -gt "0" ]; then
                 echo "- 🔴 **Status**: Critical/High vulnerabilities found" >> $GITHUB_STEP_SUMMARY
                 echo "- 📋 **Action**: Immediate remediation required" >> $GITHUB_STEP_SUMMARY
+                
+                # Falhar o job se não estiver em test mode e houver vulnerabilidades críticas/altas
+                if [[ "${{ env.TEST_MODE }}" != "true" ]]; then
+                  if [ "$CRITICAL_VULNS" -gt "0" ] && [[ "${{ env.FAIL_ON_CRITICAL }}" == "true" ]]; then
+                    echo "::error title=Critical Vulnerabilities Found::Snyk detected $CRITICAL_VULNS critical vulnerabilities"
+                    exit 1
+                  elif [ "$HIGH_VULNS" -gt "0" ] && [[ "${{ env.FAIL_ON_HIGH }}" == "true" ]]; then
+                    echo "::error title=High Vulnerabilities Found::Snyk detected $HIGH_VULNS high severity vulnerabilities"
+                    exit 1
+                  fi
+                else
+                  echo "::warning title=Test Mode - Vulnerabilities Found::Snyk detected $CRITICAL_VULNS critical and $HIGH_VULNS high vulnerabilities but continuing in test mode"
+                fi
               else
                 echo "- 🟢 **Status**: No critical/high vulnerabilities" >> $GITHUB_STEP_SUMMARY
               fi
