@@ -27,10 +27,6 @@ on:
         options:
         - 'true'
         - 'false'
-  pull_request:
-    branches: [main, develop]
-  push:
-    branches: [main, develop]
   workflow_call:
     inputs:
       test_mode:
