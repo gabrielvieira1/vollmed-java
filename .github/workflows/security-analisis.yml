@@ -2,6 +2,15 @@ name: 🛡️ Security Analysis Pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Run in test mode (succeeds even with vulnerabilities)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
   pull_request:
     branches: [main, develop]
   push:
@@ -20,6 +29,11 @@ env:
   FAIL_ON_CRITICAL: true
   FAIL_ON_HIGH: false
   GENERATE_SARIF: true
+  
+  # Test Mode Configuration
+  # Set to 'true' to run in test mode (workflow succeeds even with vulnerabilities)
+  # Set to 'false' or remove to run in production mode (workflow fails with vulnerabilities)
+  TEST_MODE: ${{ github.event.inputs.test_mode || 'false' }}
 
 jobs:
   security-scan:
@@ -347,85 +361,73 @@ jobs:
           path: snyk-results.json
           retention-days: 30
 
-  security-summary:
-    name: 📋 Security Summary & Notification
-    runs-on: ubuntu-latest
+  # Final assessment with test mode support
+  final-assessment:
+    name: 🎯 Final Security Assessment
     needs: [gitleaks, semgrep, snyk]
+    runs-on: ubuntu-latest
     if: always()
-    
     steps:
-      - name: 🔄 Checkout Repository  
-        uses: actions/checkout@v4
-
-      - name: 📋 Generate Final Security Summary
+      - name: 🔍 Evaluate Security Results
+        id: evaluation
         run: |
-          echo "## 🎯 Overall Security Assessment" >> $GITHUB_STEP_SUMMARY
+          echo "## 🛡️ Security Assessment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Determine overall status
-          OVERALL_STATUS="🟢 PASSED"
+          # Initialize variables
+          VULNERABILITIES_FOUND=false
           CRITICAL_ISSUES=false
           
-          # Check job outcomes
-          if [[ "${{ needs.gitleaks.result }}" == "failure" ]]; then
-            echo "- ❌ **GitLeaks**: Secrets detected" >> $GITHUB_STEP_SUMMARY
-            CRITICAL_ISSUES=true
-            OVERALL_STATUS="🔴 FAILED"
-          else
-            echo "- ✅ **GitLeaks**: No secrets found" >> $GITHUB_STEP_SUMMARY
+          # Check each security scan result
+          GITLEAKS_STATUS="${{ needs.gitleaks.result }}"
+          SEMGREP_STATUS="${{ needs.semgrep.result }}"
+          SNYK_STATUS="${{ needs.snyk.result }}"
+          
+          echo "### 📊 Scan Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- **GitLeaks**: $GITLEAKS_STATUS" >> $GITHUB_STEP_SUMMARY
+          echo "- **Semgrep**: $SEMGREP_STATUS" >> $GITHUB_STEP_SUMMARY
+          echo "- **Snyk**: $SNYK_STATUS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Determine if vulnerabilities were found
+          if [[ "$GITLEAKS_STATUS" == "failure" ]] || [[ "$SEMGREP_STATUS" == "failure" ]] || [[ "$SNYK_STATUS" == "failure" ]]; then
+            VULNERABILITIES_FOUND=true
           fi
           
-          if [[ "${{ needs.semgrep.result }}" == "failure" ]]; then
-            echo "- ⚠️ **Semgrep**: Issues detected (check logs)" >> $GITHUB_STEP_SUMMARY
+          # Check test mode configuration
+          if [[ "${{ env.TEST_MODE }}" == "true" ]]; then
+            echo "### 🧪 Test Mode Active" >> $GITHUB_STEP_SUMMARY
+            echo "- **Mode**: Test Mode (vulnerabilities reported but workflow succeeds)" >> $GITHUB_STEP_SUMMARY
+            if [[ "$VULNERABILITIES_FOUND" == "true" ]]; then
+              echo "- **Result**: ⚠️ Vulnerabilities found but allowing workflow to succeed in test mode" >> $GITHUB_STEP_SUMMARY
+              echo "- **Recommendation**: Review security findings and fix before production deployment" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- **Result**: ✅ No vulnerabilities detected" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "::notice title=Test Mode Active::Workflow running in test mode - vulnerabilities will not fail the build"
           else
-            echo "- ✅ **Semgrep**: Analysis completed" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          if [[ "${{ needs.snyk.result }}" == "failure" ]]; then
-            echo "- ⚠️ **Snyk**: Vulnerabilities detected (check logs)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- ✅ **Snyk**: Analysis completed" >> $GITHUB_STEP_SUMMARY
+            echo "### 🏭 Production Mode Active" >> $GITHUB_STEP_SUMMARY
+            echo "- **Mode**: Production Mode (vulnerabilities will fail the workflow)" >> $GITHUB_STEP_SUMMARY
+            if [[ "$VULNERABILITIES_FOUND" == "true" ]]; then
+              echo "- **Result**: ❌ Vulnerabilities found - failing workflow" >> $GITHUB_STEP_SUMMARY
+              echo "- **Action**: Fix vulnerabilities before proceeding" >> $GITHUB_STEP_SUMMARY
+              echo "::error title=Vulnerabilities Found::Security vulnerabilities detected in production mode"
+              exit 1
+            else
+              echo "- **Result**: ✅ No vulnerabilities detected" >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: Safe to deploy" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### $OVERALL_STATUS" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          if [ "$CRITICAL_ISSUES" = true ]; then
-            echo "🚨 **Critical security issues detected!**" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Immediate Actions Required:**" >> $GITHUB_STEP_SUMMARY
-            echo "1. 🔍 Review all failed security checks above" >> $GITHUB_STEP_SUMMARY
-            echo "2. 📥 Download artifact reports for detailed analysis" >> $GITHUB_STEP_SUMMARY
-            echo "3. 🛠️ Fix critical and high-severity issues" >> $GITHUB_STEP_SUMMARY
-            echo "4. 🔄 Re-run security pipeline after fixes" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "📖 **Documentation**: [Security Best Practices](https://github.com/${{ github.repository }}/blob/main/README.md#vulnerabilidades-educacionais-intencionais)" >> $GITHUB_STEP_SUMMARY
-            
-            # Set job outcome
-            echo "SECURITY_FAILED=true" >> $GITHUB_ENV
-            exit 1
+          echo "### 📋 Next Steps:" >> $GITHUB_STEP_SUMMARY
+          if [[ "$VULNERABILITIES_FOUND" == "true" ]]; then
+            echo "1. Review detailed security reports in the job artifacts" >> $GITHUB_STEP_SUMMARY
+            echo "2. Fix identified vulnerabilities" >> $GITHUB_STEP_SUMMARY
+            echo "3. Re-run security analysis" >> $GITHUB_STEP_SUMMARY
+            if [[ "${{ env.TEST_MODE }}" == "true" ]]; then
+              echo "4. When ready for production, disable test mode" >> $GITHUB_STEP_SUMMARY
+            fi
           else
-            echo "✅ **All security checks passed successfully!**" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Your code meets the security requirements. Great job! 🎉" >> $GITHUB_STEP_SUMMARY
+            echo "✅ All security checks passed - no action required" >> $GITHUB_STEP_SUMMARY
           fi
-
-      - name: 💬 Comment on PR (if applicable)
-        if: github.event_name == 'pull_request' && needs.gitleaks.result == 'failure'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `## 🛡️ Security Analysis Results
-              
-              ❌ **Security vulnerabilities detected in this PR**
-              
-              Please check the [Security Analysis workflow results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for detailed information.
-              
-              🔧 **Action Required**: Fix security issues before merging.
-              📊 **Reports**: Download artifacts from the workflow run for detailed analysis.`
-            });
