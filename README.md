@@ -561,6 +561,240 @@ rm -rf data/
 ~/dependency-check/bin/dependency-check.sh --updateonly
 ```
 
+# 🛡️ DevSecOps Security Workflows
+
+Este diretório contém uma arquitetura modular de segurança DevSecOps implementada com GitHub Actions. Cada workflow é especializado em um tipo específico de análise de segurança.
+
+## 📋 Visão Geral da Arquitetura
+
+```mermaid
+graph TD
+    A[🛡️ Security Pipeline] --> B[🔐 Secret Detection]
+    A --> C[🧪 SAST Analysis]
+    A --> D[🐍 SCA Analysis]
+    
+    B --> E[📊 GitLeaks Scan]
+    C --> F[📊 Semgrep Analysis]
+    D --> G[📊 Snyk Dependency Scan]
+    
+    E --> H[📈 Summary Report]
+    F --> H
+    G --> H
+```
+
+## 🗂️ Estrutura dos Workflows
+
+### 1. 🛡️ security-pipeline.yml
+**Propósito**: Workflow orquestrador principal que coordena todos os outros workflows de segurança.
+
+**Características**:
+- ⚙️ Configuração centralizada de parâmetros
+- 🎯 Execução seletiva de scans (pode habilitar/desabilitar individualmente)
+- 📊 Relatório consolidado de todos os resultados
+- 🧪 Suporte completo ao Test Mode
+- 🔄 Triggers automáticos (PRs, pushes, schedule semanal)
+
+**Parâmetros Configuráveis**:
+- `test_mode`: Executar em modo teste (não falha mesmo com vulnerabilidades)
+- `run_secret_detection`: Habilitar/desabilitar detecção de segredos
+- `run_sast_analysis`: Habilitar/desabilitar análise SAST
+- `run_sca_analysis`: Habilitar/desabilitar análise SCA
+- `fail_on_critical`: Falhar em vulnerabilidades críticas
+- `fail_on_high`: Falhar em vulnerabilidades de alta severidade
+
+### 2. 🔐 secret-detection.yml
+**Propósito**: Detecção especializada de segredos hardcoded no código.
+
+**Tecnologia**: GitLeaks via Docker
+**Características**:
+- 🔍 Scan completo do repositório
+- 📄 Geração de relatórios JSON e SARIF
+- 🔗 Integração com GitHub Security Tab
+- ⚡ Execução rápida (< 10 minutos)
+
+**Outputs**:
+- `gitleaks-report.json`: Relatório detalhado em JSON
+- `gitleaks-summary.md`: Resumo legível para humanos
+- `results.sarif`: Formato SARIF para GitHub Security
+
+### 3. 🧪 sast-analysis.yml
+**Propósito**: Análise estática de segurança do código-fonte (SAST).
+
+**Tecnologia**: Semgrep via Container
+**Características**:
+- 🔬 Análise profunda do código Java/Spring Boot
+- 📊 Integração com Semgrep Cloud Platform
+- 🎯 Categorização por severidade (Error/Warning)
+- 📈 Métricas detalhadas de vulnerabilidades
+
+**Features Especiais**:
+- 🤖 Skip automático para Dependabot
+- 🔗 Links diretos para Semgrep Cloud Platform
+- 📋 Relatórios detalhados com localização exata dos problemas
+
+### 4. 🐍 sca-analysis.yml
+**Propósito**: Análise de dependências e vulnerabilidades de terceiros (SCA).
+
+**Tecnologia**: Snyk via Docker
+**Características**:
+- 📦 Análise completa de dependências Maven
+- 🎯 Thresholds configuráveis de severidade
+- 💎 Suporte para Snyk Premium (com token)
+- 🔄 Fallback graceful sem autenticação
+
+**Severidade**:
+- 🚨 Critical: Vulnerabilidades críticas
+- 🔴 High: Alta severidade
+- 🟡 Medium: Média severidade
+- 📊 Relatórios detalhados por categoria
+
+## 🚀 Como Usar
+
+### Execução Manual (Recomendado para Testes)
+
+1. **Acesse**: Actions → DevSecOps Security Pipeline
+2. **Clique**: "Run workflow"
+3. **Configure** os parâmetros conforme necessário:
+   ```
+   Test Mode: true (para testes) / false (para produção)
+   Secret Detection: true
+   SAST Analysis: true
+   SCA Analysis: true
+   Fail on Critical: true
+   Fail on High: false
+   ```
+
+### Execução Automática
+
+Os workflows são executados automaticamente em:
+- 🔄 **Pull Requests** para `main` e `develop`
+- 📤 **Push** para `main` e `develop`
+- ⏰ **Schedule**: Toda segunda-feira às 2:00 UTC
+
+### Test Mode vs Production Mode
+
+#### 🧪 Test Mode (`test_mode: true`)
+- ✅ Executa todos os scans normalmente
+- 📊 Gera relatórios completos
+- ⚠️ Mostra warnings para vulnerabilidades encontradas
+- 🟢 **NUNCA falha** o pipeline (sempre sucesso)
+- 💡 Ideal para: desenvolvimento, testes, validação de configuração
+
+#### 🏭 Production Mode (`test_mode: false`)
+- ✅ Executa todos os scans normalmente
+- 📊 Gera relatórios completos
+- ❌ **FALHA o pipeline** se vulnerabilidades forem encontradas
+- 🛑 Bloqueia merges/deployments inseguros
+- 💡 Ideal para: branches principais, releases, CI/CD produtivo
+
+## 📊 Interpretando os Resultados
+
+### Status dos Workflows
+
+| Status | Significado | Ação |
+|--------|-------------|------|
+| ✅ **Success** | Nenhuma vulnerabilidade encontrada | Continuar desenvolvimento |
+| ❌ **Failure** | Vulnerabilidades encontradas (Production Mode) | Corrigir antes de merge |
+| ⚠️ **Warning** | Vulnerabilidades encontradas (Test Mode) | Revisar e planejar correções |
+
+### Níveis de Severidade
+
+| Nível | Impacto | Ação Requerida |
+|-------|---------|----------------|
+| 🚨 **Critical** | Exploração imediata possível | Correção urgente (< 24h) |
+| 🔴 **High** | Alto risco de segurança | Correção prioritária (< 1 semana) |
+| 🟡 **Medium** | Risco moderado | Correção no próximo ciclo |
+| 🔵 **Low** | Risco baixo | Correção quando conveniente |
+
+## 🔧 Configuração de Secrets
+
+Para funcionamento completo, configure estes secrets no repositório:
+
+### Obrigatórios
+- `SNYK_TOKEN`: Token do Snyk para análise de dependências
+  ```bash
+  Settings → Secrets → Actions → New repository secret
+  Name: SNYK_TOKEN
+  Value: seu-token-snyk
+  ```
+
+### Opcionais (para recursos avançados)
+- `SEMGREP_APP_TOKEN`: Token do Semgrep Cloud Platform
+  ```bash
+  Name: SEMGREP_APP_TOKEN
+  Value: seu-token-semgrep
+  ```
+
+## 📁 Artifacts e Relatórios
+
+Cada workflow gera artifacts específicos:
+
+### 🔐 Secret Detection
+- `gitleaks-results.zip`
+  - `gitleaks-report.json`: Relatório técnico
+  - `gitleaks-summary.md`: Resumo executivo
+  - `results.sarif`: Para GitHub Security Tab
+
+### 🧪 SAST Analysis
+- `semgrep-results.zip`
+  - `semgrep-results.json`: Resultados detalhados
+  - `semgrep-output.log`: Log completo da execução
+
+### 🐍 SCA Analysis
+- `snyk-results.zip`
+  - `snyk-results.json`: Análise de vulnerabilidades de dependências
+
+## 🔄 Troubleshooting
+
+### Problemas Comuns
+
+1. **Workflow falha com "No vulnerabilities found"**
+   - ✅ **Normal**: Pipeline está funcionando corretamente
+   - 💡 **Ação**: Nenhuma ação necessária
+
+2. **Snyk falha com "Authentication failed"**
+   - ❌ **Causa**: `SNYK_TOKEN` não configurado ou inválido
+   - 🔧 **Solução**: Configurar token válido nos Secrets
+
+3. **Semgrep skip no Dependabot**
+   - ✅ **Normal**: Proteção automática contra loops infinitos
+   - 💡 **Ação**: Nenhuma ação necessária
+
+4. **GitLeaks encontra muitos false positives**
+   - 🔧 **Solução**: Configurar `.gitleaksignore` no root do projeto
+
+### Debug Mode
+
+Para diagnóstico avançado, ative debug nos workflows:
+```yaml
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+```
+
+## 📚 Documentação e Referencias
+
+- [📖 GitLeaks Documentation](https://github.com/gitleaks/gitleaks)
+- [🧪 Semgrep Documentation](https://semgrep.dev/docs/)
+- [🐍 Snyk Documentation](https://docs.snyk.io/)
+- [🔒 GitHub Security Features](https://docs.github.com/en/code-security)
+- [⚙️ GitHub Actions Documentation](https://docs.github.com/en/actions)
+
+## 🤝 Contribuindo
+
+Para modificar os workflows:
+
+1. 🧪 **Sempre teste** em modo test primeiro
+2. 📋 **Documente** mudanças significativas
+3. 🔍 **Valide** sintaxe YAML antes do commit
+4. 📊 **Teste** com diferentes cenários (com/sem vulnerabilidades)
+
+---
+
+**📧 Para suporte**: Entre em contato com a equipe DevSecOps
+**🔄 Última atualização**: $(date '+%Y-%m-%d')
+
+
 ## 🛡️ **Próximas Melhorias**
 
 - [ ] Sistema de perfis de usuário (Admin/Médico/Recepcionista)

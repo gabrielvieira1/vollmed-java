@@ -1,0 +1,275 @@
+name: 🛡️ DevSecOps Security Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Run in test mode (succeeds even with vulnerabilities)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      run_secret_detection:
+        description: 'Run Secret Detection (GitLeaks)'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      run_sast_analysis:
+        description: 'Run SAST Analysis (Semgrep)'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      run_sca_analysis:
+        description: 'Run SCA Analysis (Snyk)'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      fail_on_critical:
+        description: 'Fail pipeline on critical vulnerabilities'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      fail_on_high:
+        description: 'Fail pipeline on high severity vulnerabilities'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly comprehensive security scan (Mondays at 2 AM)
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  pull-requests: write
+
+env:
+  # Global Security Pipeline Configuration
+  TEST_MODE: ${{ github.event.inputs.test_mode || 'false' }}
+  FAIL_ON_CRITICAL: ${{ github.event.inputs.fail_on_critical || 'true' }}
+  FAIL_ON_HIGH: ${{ github.event.inputs.fail_on_high || 'false' }}
+  
+  # Security Scan Toggles
+  RUN_SECRET_DETECTION: ${{ github.event.inputs.run_secret_detection || 'true' }}
+  RUN_SAST_ANALYSIS: ${{ github.event.inputs.run_sast_analysis || 'true' }}
+  RUN_SCA_ANALYSIS: ${{ github.event.inputs.run_sca_analysis || 'true' }}
+
+jobs:
+  # Initialize security pipeline with metadata
+  security-pipeline-init:
+    name: 🚀 Initialize Security Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    outputs:
+      test-mode: ${{ env.TEST_MODE }}
+      scan-timestamp: ${{ steps.metadata.outputs.timestamp }}
+      pipeline-id: ${{ steps.metadata.outputs.pipeline-id }}
+    
+    steps:
+      - name: 📋 Pipeline Metadata
+        id: metadata
+        run: |
+          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
+          PIPELINE_ID="${{ github.run_id }}-${{ github.run_attempt }}"
+          
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "pipeline-id=$PIPELINE_ID" >> $GITHUB_OUTPUT
+          
+          echo "# 🛡️ DevSecOps Security Pipeline" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**🔗 Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**🌲 Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**💾 Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**📅 Execution Time:** $TIMESTAMP" >> $GITHUB_STEP_SUMMARY
+          echo "**🆔 Pipeline ID:** $PIPELINE_ID" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ⚙️ Security Scan Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **🧪 Test Mode:** ${{ env.TEST_MODE }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **🔐 Secret Detection:** ${{ env.RUN_SECRET_DETECTION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **🧪 SAST Analysis:** ${{ env.RUN_SAST_ANALYSIS }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **🐍 SCA Analysis:** ${{ env.RUN_SCA_ANALYSIS }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **🚨 Fail on Critical:** ${{ env.FAIL_ON_CRITICAL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **🔴 Fail on High:** ${{ env.FAIL_ON_HIGH }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+  # Secret Detection Workflow
+  secret-detection:
+    name: 🔐 Secret Detection Analysis
+    needs: security-pipeline-init
+    if: ${{ github.event.inputs.run_secret_detection != 'false' }}
+    uses: ./.github/workflows/secret-detection.yml
+    with:
+      test_mode: ${{ needs.security-pipeline-init.outputs.test-mode }}
+    secrets: inherit
+
+  # Static Application Security Testing (SAST)
+  sast-analysis:
+    name: 🧪 Static Code Analysis
+    needs: security-pipeline-init
+    if: ${{ github.event.inputs.run_sast_analysis != 'false' && github.actor != 'dependabot[bot]' }}
+    uses: ./.github/workflows/sast-analysis.yml
+    with:
+      test_mode: ${{ needs.security-pipeline-init.outputs.test-mode }}
+    secrets: inherit
+
+  # Software Composition Analysis (SCA)
+  sca-analysis:
+    name: 🐍 Dependency Security Scan
+    needs: security-pipeline-init
+    if: ${{ github.event.inputs.run_sca_analysis != 'false' }}
+    uses: ./.github/workflows/sca-analysis.yml
+    with:
+      test_mode: ${{ needs.security-pipeline-init.outputs.test-mode }}
+      fail_on_critical: ${{ github.event.inputs.fail_on_critical || 'true' }}
+      fail_on_high: ${{ github.event.inputs.fail_on_high || 'false' }}
+    secrets: inherit
+
+  # Security pipeline summary and reporting
+  security-pipeline-summary:
+    name: 📊 Security Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [security-pipeline-init, secret-detection, sast-analysis, sca-analysis]
+    if: always()
+    
+    steps:
+      - name: 📈 Generate Pipeline Summary
+        run: |
+          echo "## 📊 Security Pipeline Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Collect results from all security scans
+          SECRET_RESULT="${{ needs.secret-detection.result }}"
+          SAST_RESULT="${{ needs.sast-analysis.result }}"
+          SCA_RESULT="${{ needs.sca-analysis.result }}"
+          
+          echo "### 🔍 Security Scan Results:" >> $GITHUB_STEP_SUMMARY
+          
+          # Secret Detection Results
+          if [[ "${{ env.RUN_SECRET_DETECTION }}" == "true" ]]; then
+            if [[ "$SECRET_RESULT" == "success" ]]; then
+              echo "- 🔐 **Secret Detection**: ✅ PASSED" >> $GITHUB_STEP_SUMMARY
+            elif [[ "$SECRET_RESULT" == "failure" ]]; then
+              echo "- 🔐 **Secret Detection**: ❌ FAILED - Secrets found" >> $GITHUB_STEP_SUMMARY
+            elif [[ "$SECRET_RESULT" == "skipped" ]]; then
+              echo "- 🔐 **Secret Detection**: ⏭️ SKIPPED" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- 🔐 **Secret Detection**: ⚠️ CANCELLED/ERROR" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "- 🔐 **Secret Detection**: ➖ DISABLED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # SAST Analysis Results
+          if [[ "${{ env.RUN_SAST_ANALYSIS }}" == "true" ]] && [[ "${{ github.actor }}" != "dependabot[bot]" ]]; then
+            if [[ "$SAST_RESULT" == "success" ]]; then
+              echo "- 🧪 **SAST Analysis**: ✅ PASSED" >> $GITHUB_STEP_SUMMARY
+            elif [[ "$SAST_RESULT" == "failure" ]]; then
+              echo "- 🧪 **SAST Analysis**: ❌ FAILED - Security issues found" >> $GITHUB_STEP_SUMMARY
+            elif [[ "$SAST_RESULT" == "skipped" ]]; then
+              echo "- 🧪 **SAST Analysis**: ⏭️ SKIPPED" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- 🧪 **SAST Analysis**: ⚠️ CANCELLED/ERROR" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "- 🧪 **SAST Analysis**: ➖ DISABLED/SKIPPED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # SCA Analysis Results
+          if [[ "${{ env.RUN_SCA_ANALYSIS }}" == "true" ]]; then
+            if [[ "$SCA_RESULT" == "success" ]]; then
+              echo "- 🐍 **SCA Analysis**: ✅ PASSED" >> $GITHUB_STEP_SUMMARY
+            elif [[ "$SCA_RESULT" == "failure" ]]; then
+              echo "- 🐍 **SCA Analysis**: ❌ FAILED - Vulnerable dependencies" >> $GITHUB_STEP_SUMMARY
+            elif [[ "$SCA_RESULT" == "skipped" ]]; then
+              echo "- 🐍 **SCA Analysis**: ⏭️ SKIPPED" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- 🐍 **SCA Analysis**: ⚠️ CANCELLED/ERROR" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "- 🐍 **SCA Analysis**: ➖ DISABLED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall pipeline status assessment
+          FAILED_SCANS=0
+          TOTAL_SCANS=0
+          
+          if [[ "${{ env.RUN_SECRET_DETECTION }}" == "true" ]]; then
+            TOTAL_SCANS=$((TOTAL_SCANS + 1))
+            [[ "$SECRET_RESULT" == "failure" ]] && FAILED_SCANS=$((FAILED_SCANS + 1))
+          fi
+          
+          if [[ "${{ env.RUN_SAST_ANALYSIS }}" == "true" ]] && [[ "${{ github.actor }}" != "dependabot[bot]" ]]; then
+            TOTAL_SCANS=$((TOTAL_SCANS + 1))
+            [[ "$SAST_RESULT" == "failure" ]] && FAILED_SCANS=$((FAILED_SCANS + 1))
+          fi
+          
+          if [[ "${{ env.RUN_SCA_ANALYSIS }}" == "true" ]]; then
+            TOTAL_SCANS=$((TOTAL_SCANS + 1))
+            [[ "$SCA_RESULT" == "failure" ]] && FAILED_SCANS=$((FAILED_SCANS + 1))
+          fi
+          
+          echo "### 🎯 Overall Security Assessment:" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "$FAILED_SCANS" -eq 0 ]]; then
+            echo "- 🛡️ **Security Status**: ✅ SECURE - All scans passed" >> $GITHUB_STEP_SUMMARY
+            echo "- 📊 **Success Rate**: 100% ($TOTAL_SCANS/$TOTAL_SCANS)" >> $GITHUB_STEP_SUMMARY
+            echo "- 🚀 **Deployment**: Ready for production" >> $GITHUB_STEP_SUMMARY
+          else
+            SECURITY_SCORE=$(( (TOTAL_SCANS - FAILED_SCANS) * 100 / TOTAL_SCANS ))
+            echo "- ⚠️ **Security Status**: ❌ VULNERABILITIES FOUND" >> $GITHUB_STEP_SUMMARY
+            echo "- 📊 **Success Rate**: $SECURITY_SCORE% ($((TOTAL_SCANS - FAILED_SCANS))/$TOTAL_SCANS)" >> $GITHUB_STEP_SUMMARY
+            echo "- 🔧 **Action Required**: Review and remediate security findings" >> $GITHUB_STEP_SUMMARY
+            
+            if [[ "${{ env.TEST_MODE }}" == "true" ]]; then
+              echo "- 🧪 **Pipeline Mode**: Test mode - vulnerabilities reported but build continues" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- 🏭 **Pipeline Mode**: Production mode - vulnerabilities cause build failure" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Next Steps:" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "$FAILED_SCANS" -gt 0 ]]; then
+            echo "1. **Download** detailed security reports from job artifacts" >> $GITHUB_STEP_SUMMARY
+            echo "2. **Analyze** each security finding in context" >> $GITHUB_STEP_SUMMARY
+            echo "3. **Remediate** identified vulnerabilities" >> $GITHUB_STEP_SUMMARY
+            echo "4. **Re-run** security pipeline to validate fixes" >> $GITHUB_STEP_SUMMARY
+            echo "5. **Monitor** for new vulnerabilities in CI/CD" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **All security checks passed** - no immediate action required" >> $GITHUB_STEP_SUMMARY
+            echo "💡 **Recommendations**:" >> $GITHUB_STEP_SUMMARY
+            echo "- Continue regular security scanning" >> $GITHUB_STEP_SUMMARY
+            echo "- Keep dependencies updated" >> $GITHUB_STEP_SUMMARY
+            echo "- Monitor security advisories" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📚 Security Resources:" >> $GITHUB_STEP_SUMMARY
+          echo "- [OWASP DevSecOps Guideline](https://owasp.org/www-project-devsecops-guideline/)" >> $GITHUB_STEP_SUMMARY
+          echo "- [NIST Secure Software Development Framework](https://csrc.nist.gov/Projects/ssdf)" >> $GITHUB_STEP_SUMMARY
+          echo "- [GitHub Security Features](https://docs.github.com/en/code-security)" >> $GITHUB_STEP_SUMMARY
