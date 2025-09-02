@@ -31,14 +31,14 @@ if [ "$TOTAL_VULNS" != "0" ] && [ "$TOTAL_VULNS" != "N/A" ]; then
     echo ""
     echo "🔍 Resumo por Severidade:"
     echo "========================="
-    
+
     # Contar por severidade
     jq -r '
-    [.dependencies[]? | select(.vulnerabilities?) | .vulnerabilities[] | select(.severity?) | .severity] 
-    | sort 
-    | group_by(.) 
-    | map({severity: .[0], count: length}) 
-    | .[] 
+    [.dependencies[]? | select(.vulnerabilities?) | .vulnerabilities[] | select(.severity?) | .severity]
+    | sort
+    | group_by(.)
+    | map({severity: .[0], count: length})
+    | .[]
     | "  \(.severity): \(.count) vulnerabilidade(s)"
     ' reports/dependency-check-report.json 2>/dev/null | while read -r line; do
         case $line in
@@ -60,8 +60,8 @@ if [ "$TOTAL_VULNS" != "0" ] && [ "$TOTAL_VULNS" != "N/A" ]; then
         score: .cvssV3?.baseScore // .cvssV2?.score // 0,
         description: .description // "Sem descrição"
     }]
-    | sort_by(.score) | reverse | .[0:10] 
-    | .[] 
+    | sort_by(.score) | reverse | .[0:10]
+    | .[]
     | "  \(.cve) (\(.severity) - Score: \(.score))\n    \(.description[0:100])..."
     ' reports/dependency-check-report.json 2>/dev/null | head -20
 

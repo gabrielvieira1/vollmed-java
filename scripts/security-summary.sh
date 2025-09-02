@@ -45,6 +45,50 @@ else
     echo -e "${GREEN}🛡️  Snyk: ✅ OK${NC}"
 fi
 
+# OWASP Dependency Check
+if [[ -f "reports/dependency-check-report.json" ]]; then
+    if command -v jq >/dev/null 2>&1; then
+        # Analisa o relatório JSON do Dependency Check - conta todas as vulnerabilidades
+        DEP_CHECK_ISSUES=$(jq '[.dependencies[]? | select(.vulnerabilities != null) | .vulnerabilities[]] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
+        DEP_CHECK_CRITICAL=$(jq '[.dependencies[]? | select(.vulnerabilities != null) | .vulnerabilities[] | select(.severity == "CRITICAL")] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
+        DEP_CHECK_HIGH=$(jq '[.dependencies[]? | select(.vulnerabilities != null) | .vulnerabilities[] | select(.severity == "HIGH")] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
+        
+        if [[ "$DEP_CHECK_ISSUES" =~ ^[0-9]+$ ]] && [[ "$DEP_CHECK_ISSUES" -gt 0 ]]; then
+            if [[ "$DEP_CHECK_CRITICAL" -gt 0 ]] || [[ "$DEP_CHECK_HIGH" -gt 0 ]]; then
+                echo -e "${RED}📦 Dependency Check: ${DEP_CHECK_ISSUES} vulnerabilidades (${DEP_CHECK_CRITICAL} críticas, ${DEP_CHECK_HIGH} altas)${NC}"
+            else
+                echo -e "${YELLOW}📦 Dependency Check: ${DEP_CHECK_ISSUES} vulnerabilidades (baixo/médio risco)${NC}"
+            fi
+            TOTAL_ISSUES=$((TOTAL_ISSUES + DEP_CHECK_ISSUES))
+        else
+            echo -e "${GREEN}📦 Dependency Check: ✅ OK${NC}"
+        fi
+    else
+        # Sem jq, verifica se o arquivo não está vazio e contém vulnerabilidades
+        if grep -q '"vulnerabilities"' reports/dependency-check-report.json 2>/dev/null; then
+            echo -e "${YELLOW}📦 Dependency Check: ⚠️  Vulnerabilidades detectadas (instale jq para detalhes)${NC}"
+            TOTAL_ISSUES=$((TOTAL_ISSUES + 1))
+        else
+            echo -e "${GREEN}📦 Dependency Check: ✅ OK${NC}"
+        fi
+    fi
+elif [[ -f "logs/dependency-check.log" ]]; then
+    # Fallback para o log se o JSON não existir
+    if grep -q "vulnerabilities found" logs/dependency-check.log 2>/dev/null; then
+        DEP_CHECK_COUNT=$(grep -o "[0-9]* vulnerabilities found" logs/dependency-check.log | grep -o "^[0-9]*" || echo "0")
+        if [[ "$DEP_CHECK_COUNT" =~ ^[0-9]+$ ]] && [[ "$DEP_CHECK_COUNT" -gt 0 ]]; then
+            echo -e "${RED}📦 Dependency Check: ${DEP_CHECK_COUNT} vulnerabilidades encontradas${NC}"
+            TOTAL_ISSUES=$((TOTAL_ISSUES + DEP_CHECK_COUNT))
+        else
+            echo -e "${GREEN}📦 Dependency Check: ✅ OK${NC}"
+        fi
+    else
+        echo -e "${GREEN}📦 Dependency Check: ✅ OK${NC}"
+    fi
+else
+    echo -e "${YELLOW}📦 Dependency Check: ⚠️  Relatório não encontrado${NC}"
+fi
+
 # GitLeaks
 if [[ -f "logs/gitleaks.log" ]] && grep -q "leaks found:" logs/gitleaks.log; then
     GITLEAKS_ISSUES=$(grep -o "leaks found: [0-9]*" logs/gitleaks.log | grep -o "[0-9]*")
@@ -126,5 +170,5 @@ echo -e "${CYAN}=================================${NC}"
 echo ""
 echo -e "${BLUE}💡 Para detalhes completos:${NC}"
 echo -e "   ./scripts/show-security-results.sh"
-echo -e "   ./scripts/show-security-results.sh [snyk|gitleaks|semgrep|bandit]"
+echo -e "   ./scripts/show-security-results.sh [gitleaks|semgrep|dependency-check]"
 echo ""

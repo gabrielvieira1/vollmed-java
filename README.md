@@ -87,7 +87,7 @@ $ git commit -m "feat: nova funcionalidade"
 
 [INFO] Initializing environment for pre-commit hooks...
 trailing-whitespace..................................Passed
-end-of-file-fixer....................................Passed  
+end-of-file-fixer....................................Passed
 check-yaml...........................................Passed
 check-added-large-files..............................Passed
 GitLeaks.............................................Passed
@@ -109,7 +109,7 @@ OWASP Dependency-Check (Local).......................Failed
 - 📁 `IntegracaoExternaService.java`: API keys em código
 - 📁 `application.properties`: Credenciais de banco
 
-### **2. Criptografia Fraca (Medium Severity)**  
+### **2. Criptografia Fraca (Medium Severity)**
 - 📁 `RelatorioMedicoService.java`: Uso de DES com chaves fixas
 - 📁 `resources/certificates/`: Certificados .pfx versionados
 
@@ -133,7 +133,7 @@ O projeto inclui análise automatizada com **Google Gemini AI**:
 python3 scripts/vulnerability_summary.py
 
 # Gera relatório Markdown completo com:
-# - Análise de vulnerabilidades por severidade  
+# - Análise de vulnerabilidades por severidade
 # - Recomendações de correção específicas
 # - Contexto de cada vulnerabilidade encontrada
 # - Sugestões de mitigação priorizadas
@@ -157,7 +157,7 @@ python3 scripts/vulnerability_summary.py
 🎯 RESULTADOS PRINCIPAIS:
 ========================
 📦 Dependências analisadas: 79
-⚠️  Dependências vulneráveis: 15  
+⚠️  Dependências vulneráveis: 15
 🚨 Vulnerabilidades CRITICAL: 5
 🔴 Vulnerabilidades HIGH: 22
 🟡 Vulnerabilidades MEDIUM: 13
@@ -206,7 +206,7 @@ data/                          # Cache local OWASP (projeto)
 
 ~/dependency-check/data/       # Instalação global OWASP
 ├── odc.mv.db                  # Base H2 completa (220MB)
-├── oss_cache/                 # Cache OSS Index  
+├── oss_cache/                 # Cache OSS Index
 └── [307.439 registros NVD]    # Base completa offline
 ```
 
@@ -271,7 +271,7 @@ bash scripts/analyze-security-report.sh
 # Relatório com IA (requer GEMINI_API_KEY)
 python3 scripts/vulnerability_summary.py
 
-# Sumário de todas as ferramentas  
+# Sumário de todas as ferramentas
 bash scripts/security-summary.sh
 ```
 
@@ -296,7 +296,7 @@ O sistema gera métricas detalhadas automaticamente:
 │ Severidade  │ Qtd    │ % Total │
 ├─────────────┼────────┼─────────┤
 │ 🚨 CRITICAL │ 5      │ 12%     │
-│ 🔴 HIGH     │ 22     │ 52%     │ 
+│ 🔴 HIGH     │ 22     │ 52%     │
 │ 🟡 MEDIUM   │ 13     │ 31%     │
 │ 🔵 LOW      │ 2      │ 5%      │
 └─────────────┴────────┴─────────┘
@@ -304,7 +304,7 @@ O sistema gera métricas detalhadas automaticamente:
 🔥 TOP VULNERABILIDADES:
 ========================
 1. 🚨 tomcat-embed-core: 17 vulns (CVE-2024-50379)
-2. 🔴 spring-web: 3 vulns (Framework core)  
+2. 🔴 spring-web: 3 vulns (Framework core)
 3. 🟡 kafka-clients: 3 vulns (Message broker)
 ```
 
@@ -572,11 +572,11 @@ graph TD
     A[🛡️ Security Pipeline] --> B[🔐 Secret Detection]
     A --> C[🧪 SAST Analysis]
     A --> D[🐍 SCA Analysis]
-    
+
     B --> E[📊 GitLeaks Scan]
     C --> F[📊 Semgrep Analysis]
     D --> G[📊 Snyk Dependency Scan]
-    
+
     E --> H[📈 Summary Report]
     F --> H
     G --> H
@@ -813,7 +813,7 @@ Para modificar os workflows:
 - ✅ **Pipeline completo de segurança** com pre-commit hooks
 - ✅ **OWASP Dependency-Check** integrado localmente (12.1.0)
 - ✅ **GitLeaks** para detecção de secrets
-- ✅ **Base NVD offline** (307.439 vulnerabilidades) 
+- ✅ **Base NVD offline** (307.439 vulnerabilidades)
 - ✅ **Análise automatizada com IA** (Google Gemini)
 - ✅ **Scripts de relatório** executivos e técnicos
 - ✅ **Cache inteligente** para performance otimizada
@@ -880,7 +880,7 @@ Este projeto foi desenvolvido para demonstrar:
 
 🎯 Efetividade:
    - 100% dos commits analisados
-   - 42 vulnerabilidades detectadas automaticamente  
+   - 42 vulnerabilidades detectadas automaticamente
    - 0 vulnerabilidades críticas em produção
 
 📊 Cobertura:
@@ -891,7 +891,7 @@ Este projeto foi desenvolvido para demonstrar:
 
 ### **ROI (Return on Investment)**
 - 🚀 **Redução de 95%** no tempo de detecção de vulnerabilidades
-- 💰 **Economia de 80%** em custos de correção pós-produção  
+- 💰 **Economia de 80%** em custos de correção pós-produção
 - ⏰ **Feedback em segundos** vs semanas em testes manuais
 - 🛡️ **Zero vulnerabilidades críticas** chegando em produção
 

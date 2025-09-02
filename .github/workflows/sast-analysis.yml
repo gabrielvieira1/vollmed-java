@@ -33,16 +33,16 @@ jobs:
     name: 🧪 Semgrep - Code Security Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
+
     container:
       image: semgrep/semgrep
-    
+
     # Skip for Dependabot PRs
     if: (github.actor != 'dependabot[bot]')
-    
+
     env:
       SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-    
+
     steps:
       - name: 🔄 Checkout Repository
         uses: actions/checkout@v4
@@ -51,29 +51,29 @@ jobs:
         id: semgrep-scan
         run: |
           echo "🔍 Running Semgrep Static Application Security Testing..."
-          
+
           # Create artifacts directory
           mkdir -p artifacts
-          
+
           # Run Semgrep with JSON output only (most reliable format)
           echo "📊 Running SAST analysis and generating JSON results..."
           semgrep ci --json --output=artifacts/semgrep-results.json 2>&1 | tee artifacts/semgrep-output.log || echo "SEMGREP_FAILED=true" >> $GITHUB_ENV
-          
+
           # Extract Semgrep Cloud Platform URLs for detailed analysis
           FINDINGS_URL=""
           SUPPLY_CHAIN_URL=""
-          
+
           if grep -q "View results in Semgrep Cloud Platform:" artifacts/semgrep-output.log; then
             FINDINGS_URL=$(grep -A2 "View results in Semgrep Cloud Platform:" artifacts/semgrep-output.log | grep "findings" | xargs || echo "")
             SUPPLY_CHAIN_URL=$(grep -A3 "View results in Semgrep Cloud Platform:" artifacts/semgrep-output.log | grep "supply-chain" | xargs || echo "")
           fi
-          
+
           # Save URLs for later steps
           echo "SEMGREP_FINDINGS_URL=$FINDINGS_URL" >> $GITHUB_ENV
           echo "SEMGREP_SUPPLY_CHAIN_URL=$SUPPLY_CHAIN_URL" >> $GITHUB_ENV
-          
+
           echo "📋 SAST analysis completed, results saved in artifacts/"
-          
+
           # Show scan summary
           if [ -f "artifacts/semgrep-results.json" ]; then
             echo "✅ JSON results generated: artifacts/semgrep-results.json"
@@ -91,7 +91,7 @@ jobs:
         if: always()
         run: |
           echo "📋 Processing Semgrep SAST results..."
-          
+
           # Generate comprehensive security report
           if [ -f "artifacts/semgrep-results.json" ]; then
             echo "# 🧪 Static Application Security Testing (SAST) Report" > artifacts/sast-summary.md
@@ -102,39 +102,39 @@ jobs:
             echo "**Scan Date:** $(date '+%Y-%m-%d %H:%M:%S UTC')" >> artifacts/sast-summary.md
             echo "**Tool:** Semgrep (Static Analysis Security Testing)" >> artifacts/sast-summary.md
             echo "" >> artifacts/sast-summary.md
-            
+
             # Parse results with jq if available
             if command -v jq >/dev/null 2>&1; then
               TOTAL_ISSUES=$(jq '.results | length' artifacts/semgrep-results.json 2>/dev/null || echo "0")
               ERROR_ISSUES=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' artifacts/semgrep-results.json 2>/dev/null || echo "0")
               WARNING_ISSUES=$(jq '[.results[] | select(.extra.severity == "WARNING")] | length' artifacts/semgrep-results.json 2>/dev/null || echo "0")
               INFO_ISSUES=$(jq '[.results[] | select(.extra.severity == "INFO")] | length' artifacts/semgrep-results.json 2>/dev/null || echo "0")
-              
+
               echo "## 📊 Findings Summary" >> artifacts/sast-summary.md
               echo "- **Total Issues:** $TOTAL_ISSUES" >> artifacts/sast-summary.md
               echo "- **High Severity (ERROR):** $ERROR_ISSUES" >> artifacts/sast-summary.md
               echo "- **Medium Severity (WARNING):** $WARNING_ISSUES" >> artifacts/sast-summary.md
               echo "- **Low Severity (INFO):** $INFO_ISSUES" >> artifacts/sast-summary.md
               echo "" >> artifacts/sast-summary.md
-              
+
               if [ "$TOTAL_ISSUES" -gt "0" ]; then
                 echo "## 🚨 Security Issues by Category" >> artifacts/sast-summary.md
                 echo "" >> artifacts/sast-summary.md
-                
+
                 # Group findings by rule category
                 jq -r '
-                  .results | 
-                  group_by(.check_id) | 
-                  sort_by(length) | 
-                  reverse | 
-                  .[] | 
+                  .results |
+                  group_by(.check_id) |
+                  sort_by(length) |
+                  reverse |
+                  .[] |
                   "### " + .[0].check_id + " (" + (length | tostring) + " occurrences)\n" +
                   "**Severity:** " + .[0].extra.severity + "\n" +
                   "**Description:** " + (.[0].extra.message // "N/A") + "\n" +
-                  (map("- **File:** `" + .path + "` (Line: " + (.start.line | tostring) + ")") | join("\n")) + 
+                  (map("- **File:** `" + .path + "` (Line: " + (.start.line | tostring) + ")") | join("\n")) +
                   "\n"
                 ' artifacts/semgrep-results.json >> artifacts/sast-summary.md
-                
+
                 echo "## 🛠️ Remediation Guidelines" >> artifacts/sast-summary.md
                 echo "1. **Priority:** Address ERROR severity issues first" >> artifacts/sast-summary.md
                 echo "2. **Review:** Analyze each finding in context of your application" >> artifacts/sast-summary.md
@@ -159,7 +159,7 @@ jobs:
         run: |
           echo "## 🧪 Static Application Security Testing Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ -f "artifacts/semgrep-results.json" ]; then
             # Parse and display comprehensive results
             if command -v jq >/dev/null 2>&1; then
@@ -167,14 +167,14 @@ jobs:
               ERROR_ISSUES=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' artifacts/semgrep-results.json 2>/dev/null || echo "0")
               WARNING_ISSUES=$(jq '[.results[] | select(.extra.severity == "WARNING")] | length' artifacts/semgrep-results.json 2>/dev/null || echo "0")
               INFO_ISSUES=$(jq '[.results[] | select(.extra.severity == "INFO")] | length' artifacts/semgrep-results.json 2>/dev/null || echo "0")
-              
+
               echo "### 📊 Security Analysis Summary" >> $GITHUB_STEP_SUMMARY
               echo "- **Total Findings**: $TOTAL_ISSUES" >> $GITHUB_STEP_SUMMARY
               echo "- **🚨 High Severity (ERROR)**: $ERROR_ISSUES" >> $GITHUB_STEP_SUMMARY
               echo "- **🟡 Medium Severity (WARNING)**: $WARNING_ISSUES" >> $GITHUB_STEP_SUMMARY
               echo "- **ℹ️ Low Severity (INFO)**: $INFO_ISSUES" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              
+
               # Determine security status
               if [ "$TOTAL_ISSUES" -gt "0" ]; then
                 if [ "$ERROR_ISSUES" -gt "0" ]; then
@@ -187,23 +187,23 @@ jobs:
                   echo "- 🔵 **Security Status**: LOW RISK - Minor findings" >> $GITHUB_STEP_SUMMARY
                   RISK_LEVEL="LOW"
                 fi
-                
+
                 echo "- 📋 **Action Required**: Review detailed findings in artifacts" >> $GITHUB_STEP_SUMMARY
-                
+
                 # Add Semgrep Cloud Platform links if available
                 if [ -n "$SEMGREP_FINDINGS_URL" ] || [ -n "$SEMGREP_SUPPLY_CHAIN_URL" ]; then
                   echo "" >> $GITHUB_STEP_SUMMARY
                   echo "### 🔗 Detailed Analysis Links:" >> $GITHUB_STEP_SUMMARY
-                  
+
                   if [ -n "$SEMGREP_FINDINGS_URL" ]; then
                     echo "- 📋 [View Code Security Findings]($SEMGREP_FINDINGS_URL)" >> $GITHUB_STEP_SUMMARY
                   fi
-                  
+
                   if [ -n "$SEMGREP_SUPPLY_CHAIN_URL" ]; then
                     echo "- 📦 [View Supply Chain Analysis]($SEMGREP_SUPPLY_CHAIN_URL)" >> $GITHUB_STEP_SUMMARY
                   fi
                 fi
-                
+
                 # Handle test mode vs production mode
                 if [[ "${{ env.TEST_MODE }}" != "true" ]]; then
                   echo "::error title=SAST Issues Found::Semgrep detected $TOTAL_ISSUES security issues ($ERROR_ISSUES high severity)"
@@ -223,7 +223,7 @@ jobs:
             echo "- ⚠️ **Status**: Scan incomplete or results unavailable" >> $GITHUB_STEP_SUMMARY
             echo "- 📋 **Action**: Review scan logs for troubleshooting" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📚 Security Resources:" >> $GITHUB_STEP_SUMMARY
           echo "- [Semgrep Rules Documentation](https://semgrep.dev/docs/writing-rules/overview/)" >> $GITHUB_STEP_SUMMARY
