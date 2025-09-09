@@ -52,7 +52,7 @@ if [[ -f "reports/dependency-check-report.json" ]]; then
         DEP_CHECK_ISSUES=$(jq '[.dependencies[]? | select(.vulnerabilities != null) | .vulnerabilities[]] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
         DEP_CHECK_CRITICAL=$(jq '[.dependencies[]? | select(.vulnerabilities != null) | .vulnerabilities[] | select(.severity == "CRITICAL")] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
         DEP_CHECK_HIGH=$(jq '[.dependencies[]? | select(.vulnerabilities != null) | .vulnerabilities[] | select(.severity == "HIGH")] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
-        
+
         if [[ "$DEP_CHECK_ISSUES" =~ ^[0-9]+$ ]] && [[ "$DEP_CHECK_ISSUES" -gt 0 ]]; then
             if [[ "$DEP_CHECK_CRITICAL" -gt 0 ]] || [[ "$DEP_CHECK_HIGH" -gt 0 ]]; then
                 echo -e "${RED}📦 Dependency Check: ${DEP_CHECK_ISSUES} vulnerabilidades (${DEP_CHECK_CRITICAL} críticas, ${DEP_CHECK_HIGH} altas)${NC}"

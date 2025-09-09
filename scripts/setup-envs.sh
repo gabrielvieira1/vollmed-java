@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Setup script para configurar Snyk no projeto
-echo "🔧 Setup do Snyk Security Scanner"
+echo "🔧 Setup das Envs Security Scanner"
 echo "================================="
 echo ""
 
