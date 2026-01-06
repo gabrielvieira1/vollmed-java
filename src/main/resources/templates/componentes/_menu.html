@@ -20,6 +20,9 @@
                     <a href="../relatorio/listagem-relatorios.html" th:href="@{/relatorios}"
                         class="nav-link">Relatórios</a>
                 </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a href="../usuario/listagem-usuarios.html" th:href="@{/usuarios}" class="nav-link">🔐 Usuários</a>
+                </li>
             </ul>
         </nav>
 

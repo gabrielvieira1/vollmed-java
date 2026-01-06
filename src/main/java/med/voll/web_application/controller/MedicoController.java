@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,6 +25,7 @@ import med.voll.web_application.domain.medico.Especialidade;
 import med.voll.web_application.domain.medico.MedicoService;
 
 @Controller
+@PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas ADMIN e MEDICO podem acessar
 @RequestMapping("medicos")
 public class MedicoController {
 

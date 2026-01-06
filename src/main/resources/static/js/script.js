@@ -323,4 +323,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("=== EVENT LISTENERS DE BUSCA DE MÉDICOS ADICIONADOS ===");
   }
+
+  // Debug do formulário de usuários
+  const formUsuario = document.querySelector('form[action*="usuarios"]');
+  if (formUsuario) {
+    console.log("=== FORMULÁRIO DE USUÁRIO ENCONTRADO ===");
+
+    formUsuario.addEventListener("submit", function (e) {
+      console.log("\n=== FORMULÁRIO DE USUÁRIO SENDO ENVIADO ===");
+
+      const formData = new FormData(formUsuario);
+      console.log("Dados do formulário:");
+      for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}: ${value}`);
+      }
+
+      // Verifica campos obrigatórios
+      const nome = formUsuario.querySelector("#nome");
+      const email = formUsuario.querySelector("#email");
+      const perfil = formUsuario.querySelector("#perfil");
+      const senha = formUsuario.querySelector("#senha");
+      const id = formUsuario.querySelector('input[name="id"]');
+
+      console.log("Validações:");
+      console.log(
+        `  Nome válido? ${nome.checkValidity()} - Valor: "${nome.value}"`
+      );
+      console.log(
+        `  Email válido? ${email.checkValidity()} - Valor: "${email.value}"`
+      );
+      console.log(
+        `  Perfil válido? ${perfil.checkValidity()} - Valor: "${perfil.value}"`
+      );
+      console.log(
+        `  Senha válida? ${senha.checkValidity()} - Valor: "${
+          senha.value ? "[PREENCHIDA]" : "[VAZIA]"
+        }"`
+      );
+      console.log(`  ID: ${id.value || "null (novo usuário)"}`);
+
+      if (!formUsuario.checkValidity()) {
+        console.log(
+          "❌ FORMULÁRIO INVÁLIDO - submit será bloqueado pelo HTML5"
+        );
+        e.preventDefault();
+        formUsuario.reportValidity();
+        return false;
+      }
+
+      console.log("✅ Formulário válido - enviando para servidor...");
+    });
+  }
 });

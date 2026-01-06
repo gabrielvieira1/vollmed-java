@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+ layout:decorate="~{template.html}">
+
+<head>
+ <title>Gestão de Usuários</title>
+</head>
+
+<body>
+ <div layout:fragment="conteudo">
+  <div class="main-container">
+   <div class="page-header">
+    <div class="container">
+     <h1 class="page-title">Gerenciamento de Usuários</h1>
+     <p class="page-subtitle">🔐 Controle de acessos e permissões do sistema</p>
+    </div>
+   </div>
+
+   <main class="container">
+    <section class="modern-card">
+     <div class="table-header">
+      <h2 class="table-title">Listagem de usuários</h2>
+      <a href="formulario-usuario.html" th:href="@{/usuarios/formulario}" class="modern-btn modern-btn-success">
+       <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
+       Novo Usuário
+      </a>
+     </div>
+
+     <!-- Mensagens de sucesso/erro -->
+     <div th:if="${mensagemSucesso}" class="modern-alert"
+      style="background: #d4edda; color: #155724; margin: 20px; padding: 15px; border-radius: 8px;">
+      <strong>✅ Sucesso!</strong> <span th:text="${mensagemSucesso}"></span>
+     </div>
+
+     <div th:if="${mensagemErro}" class="modern-alert"
+      style="background: #f8d7da; color: #721c24; margin: 20px; padding: 15px; border-radius: 8px;">
+      <strong>❌ Erro!</strong> <span th:text="${mensagemErro}"></span>
+     </div>
+
+     <table class="modern-table" th:if="${!usuarios.empty}">
+      <thead>
+       <tr>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Perfil</th>
+        <th>Ações</th>
+       </tr>
+      </thead>
+
+      <tbody>
+       <tr th:each="usuario: ${usuarios}">
+        <td th:text="${usuario.nome}"></td>
+        <td th:text="${usuario.email}"></td>
+        <td>
+         <span class="badge"
+          th:classappend="${usuario.perfil == 'ADMIN'} ? 'badge-danger' : (${usuario.perfil == 'MEDICO'} ? 'badge-primary' : (${usuario.perfil == 'RECEPCIONISTA'} ? 'badge-info' : 'badge-secondary'))"
+          th:text="${usuario.perfilDescricao}"></span>
+        </td>
+        <td>
+         <div class="action-buttons">
+          <a href="#" class="action-btn edit" th:href="@{/usuarios/formulario?id={id}(id=${usuario.id})}"
+           title="Editar">
+           <img src="/static/assets/edit.svg" th:src="@{/assets/edit.svg}" alt="Editar">
+          </a>
+          <a href="#deleteModal" class="action-btn delete" data-toggle="modal" th:data-id="${usuario.id}"
+           data-url="/usuarios" title="Excluir">
+           <img src="/static/assets/delete.svg" th:src="@{/assets/delete.svg}" alt="Excluir">
+          </a>
+         </div>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+
+     <div class="empty-state" th:if="${usuarios.empty}">
+      <div class="empty-state-icon">👤</div>
+      <p class="empty-state-text">Nenhum usuário cadastrado ainda</p>
+      <a href="formulario-usuario.html" th:href="@{/usuarios/formulario}" class="modern-btn modern-btn-primary">
+       Cadastrar Primeiro Usuário
+      </a>
+     </div>
+
+     <div th:replace="~{componentes/_paginacao.html :: paginacao(url = 'usuarios', registros = ${usuarios})}"></div>
+    </section>
+   </main>
+  </div>
+
+  <div th:replace="~{componentes/_modal_excluir.html :: modal}"></div>
+ </div>
+</body>
+
+</html>

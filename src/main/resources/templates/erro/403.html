@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+ layout:decorate="~{template.html}">
+
+<head>
+ <title>Acesso Negado - VollMed</title>
+</head>
+
+<div layout:fragment="conteudo">
+ <div class="container" style="text-align: center; padding: 60px 20px;">
+  <div style="max-width: 600px; margin: 0 auto;">
+   <h1 style="font-size: 120px; color: #dc3545; margin: 0;">🔒</h1>
+   <h2 style="color: #333; margin-top: 20px;">Acesso Negado</h2>
+   <p style="color: #666; font-size: 18px; margin: 20px 0;">
+    Você não tem permissão para acessar esta página.
+   </p>
+   <p style="color: #999; margin-bottom: 30px;">
+    Esta funcionalidade requer um perfil de acesso específico.
+   </p>
+
+   <div style="margin-top: 30px;">
+    <a href="/" class="btn-primary"
+     style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 500; margin: 5px;">
+     🏠 Voltar para Início
+    </a>
+    <a href="/logout" class="btn-secondary"
+     style="display: inline-block; padding: 12px 30px; background: #6c757d; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; margin: 5px;">
+     🚪 Trocar de Usuário
+    </a>
+   </div>
+
+   <div
+    style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #dc3545;">
+    <h4 style="color: #333; margin-bottom: 10px;">ℹ️ Perfis de Acesso</h4>
+    <p style="color: #666; font-size: 14px; margin: 5px 0;">
+     <strong>ADMIN:</strong> Acesso total ao sistema<br>
+     <strong>MÉDICO:</strong> Gerenciamento de pacientes e consultas<br>
+     <strong>PACIENTE:</strong> Visualização de próprias consultas<br>
+     <strong>RECEPCIONISTA:</strong> Agendamento de consultas
+    </p>
+   </div>
+  </div>
+ </div>
+</div>
+
+</html>

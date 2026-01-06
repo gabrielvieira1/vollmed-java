@@ -1,19 +1,44 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{template.html}">
+<html lang="pt-BR" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{template.html}">
+
 <head>
-    <title>Erro inesperado</title>
+    <title>Erro Inesperado - VollMed</title>
 </head>
 
 <body>
     <div layout:fragment="conteudo">
-        <main class="container">
-            <section class="card">
-                <h1 class="text-center">Ops! Ocorreu um erro inesperado!</h1>
-                <p class="text-center">O time de tecnologia já foi acionado para resolver o problema 😬</p>
-            </section>
-        </main>
+        <div class="container" style="text-align: center; padding: 60px 20px;">
+            <div style="max-width: 600px; margin: 0 auto;">
+                <h1 style="font-size: 120px; color: #dc3545; margin: 0;">⚠️</h1>
+                <h2 style="color: #333; margin-top: 20px;">Ops! Ocorreu um erro inesperado!</h2>
+
+                <!-- Mensagem de erro dinâmica -->
+                <div th:if="${mensagemErro}"
+                    style="margin: 20px 0; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px;">
+                    <p style="color: #856404; margin: 0;">
+                        <strong th:text="${tipoErro}">Erro</strong>: <span th:text="${mensagemErro}">Mensagem de
+                            erro</span>
+                    </p>
+                </div>
+
+                <p style="color: #666; font-size: 18px; margin: 20px 0;">
+                    O time de tecnologia já foi acionado para resolver o problema 😬
+                </p>
+
+                <div style="margin-top: 30px;">
+                    <a href="javascript:history.back()" class="btn-secondary"
+                        style="display: inline-block; padding: 12px 30px; background: #6c757d; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; margin: 5px;">
+                        ⬅️ Voltar
+                    </a>
+                    <a href="/" class="btn-primary"
+                        style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 500; margin: 5px;">
+                        🏠 Página Inicial
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
+
 </html>

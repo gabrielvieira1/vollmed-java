@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+ layout:decorate="~{template.html}">
+
+<head>
+ <title>Cadastro de Usuário</title>
+</head>
+
+<body>
+ <div layout:fragment="conteudo">
+  <div class="main-container">
+   <div class="page-header">
+    <div class="container">
+     <h1 class="page-title" th:text="${dados.id == null} ? 'Novo Usuário' : 'Editar Usuário'"></h1>
+    </div>
+   </div>
+
+   <main class="container">
+    <div class="modern-card">
+     <div th:if="${erro}" class="modern-alert"
+      style="background: #f8d7da; color: #721c24; margin-bottom: 20px; padding: 15px; border-radius: 8px;">
+      <strong>❌ Erro!</strong> <span th:text="${erro}"></span>
+     </div>
+
+     <form th:action="@{/usuarios}" th:object="${dados}" method="POST">
+      <input type="hidden" th:field="*{id}">
+
+      <div class="modern-form-row">
+       <div class="modern-form-group">
+        <label for="nome">Nome Completo *</label>
+        <input type="text" id="nome" name="nome" th:field="*{nome}" placeholder="Digite o nome completo" required>
+       </div>
+      </div>
+
+      <div class="modern-form-row">
+       <div class="modern-form-group">
+        <label for="email">Email *</label>
+        <input type="email" id="email" name="email" th:field="*{email}" placeholder="usuario@email.com" required>
+       </div>
+      </div>
+
+      <div class="modern-form-row">
+       <div class="modern-form-group">
+        <label for="perfil">Perfil de Acesso *</label>
+        <select id="perfil" name="perfil" th:field="*{perfil}" required>
+         <option value="">Selecione um perfil</option>
+         <option th:each="perfil : ${perfis}" th:value="${perfil}" th:text="${perfil.descricao}"></option>
+        </select>
+
+        <!-- Descrição dos perfis -->
+        <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.9em;">
+         <strong>Permissões dos perfis:</strong>
+         <ul style="margin: 5px 0; padding-left: 20px;">
+          <li><strong>Admin:</strong> Acesso total ao sistema</li>
+          <li><strong>Médico:</strong> Gerenciar consultas e pacientes</li>
+          <li><strong>Recepcionista:</strong> Agendar consultas e cadastrar pacientes</li>
+          <li><strong>Paciente:</strong> Visualizar suas consultas</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+
+      <div class="modern-form-row">
+       <div class="modern-form-group">
+        <label for="senha">
+         <span th:if="${dados.id == null}">Senha *</span>
+         <span th:if="${dados.id != null}">Nova Senha (deixe em branco para não alterar)</span>
+        </label>
+        <input type="password" id="senha" name="senha" th:field="*{senha}" placeholder="Mínimo 6 caracteres"
+         th:required="${dados.id == null}">
+        <small style="color: #666;">
+         <span th:if="${dados.id == null}">⚠️ Senha obrigatória para novo usuário</span>
+         <span th:if="${dados.id != null}">💡 Preencha apenas se quiser alterar a senha</span>
+        </small>
+       </div>
+      </div>
+
+      <div class="modern-form-actions">
+       <button type="submit" class="modern-btn modern-btn-primary">
+        <span th:if="${dados.id == null}">Cadastrar Usuário</span>
+        <span th:if="${dados.id != null}">Salvar Alterações</span>
+       </button>
+       <a href="listagem-usuarios.html" th:href="@{/usuarios}" class="modern-btn modern-btn-secondary">
+        Cancelar
+       </a>
+      </div>
+     </form>
+    </div>
+   </main>
+  </div>
+ </div>
+</body>
+
+</html>
