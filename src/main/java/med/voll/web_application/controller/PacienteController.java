@@ -91,15 +91,9 @@ public class PacienteController {
     return REDIRECT_LISTAGEM;
   }
 
-  // ⚠️ ENDPOINT VULNERÁVEL - PARA DEMONSTRAÇÃO EDUCACIONAL
-  // Este endpoint demonstra SQL Injection via procedure
   @GetMapping("buscar")
   @ResponseBody
   public List<DadosListagemPaciente> buscarPacientesVulneravel(@RequestParam String nome) {
-    System.out.println("🚨 AVISO: Endpoint vulnerável sendo usado para demonstração educacional!");
-    System.out.println("📝 Parâmetro recebido: " + nome);
-    System.out.println("⚠️  Para demonstrar SQL Injection, tente: \"; DROP TABLE pacientes; --");
-
     return service.buscarPorNome(nome);
   }
 

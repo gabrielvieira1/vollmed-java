@@ -33,8 +33,8 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
 
  // ⚠️ MÉTODO VULNERÁVEL - NÃO USE EM PRODUÇÃO
  // Este método será usado para demonstrar SQL Injection via procedure
- // A procedure search_patient_vulnerable contém vulnerabilidade intencional
- @Query(value = "CALL search_patient_vulnerable(:nome)", nativeQuery = true)
+ // A procedure search_patient contém vulnerabilidade intencional
+ @Query(value = "CALL search_patient(:nome)", nativeQuery = true)
  List<Object[]> buscarPacientePorNome(@Param("nome") String nome);
 
  // Busca segura usando JPQL
