@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+ layout:decorate="~{template.html}">
+
+<head>
+ <title>Listagem de Pacientes</title>
+</head>
+
+<body>
+ <div layout:fragment="conteudo">
+  <div class="main-container">
+   <div class="page-header">
+    <div class="container">
+     <h1 class="page-title">Gerenciamento de Pacientes</h1>
+    </div>
+   </div>
+
+   <main class="container">
+    <!-- Seção de Busca -->
+    <section class="modern-card" style="margin-bottom: 20px;">
+     <div class="table-header" style="margin-bottom: 15px;">
+      <h3 class="table-title">Buscar Pacientes</h3>
+     </div>
+     <div style="padding: 0 20px 20px 20px;">
+      <div class="modern-form-group" style="display: flex; gap: 15px; align-items: end;">
+       <div style="flex: 1;">
+        <label for="searchPatientInput">Nome do Paciente</label>
+        <input type="text" id="searchPatientInput" placeholder="Digite o nome do paciente..." style="width: 100%;">
+       </div>
+       <div>
+        <button id="searchPatientBtn" class="modern-btn modern-btn-primary">
+         <i class="fas fa-search" style="margin-right: 8px;"></i>Buscar
+        </button>
+       </div>
+      </div>
+
+      <!-- Resultados da busca -->
+      <div id="search-results" style="display:none; margin-top: 20px;">
+       <div class="modern-alert" style="background: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 8px;">
+        <div id="search-output"></div>
+       </div>
+      </div>
+     </div>
+    </section>
+
+    <section class="modern-card">
+     <div class="table-header">
+      <h2 class="table-title">Listagem de pacientes</h2>
+      <a href="formulario-paciente.html" th:href="@{/pacientes/formulario}" class="modern-btn modern-btn-success">
+       <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
+       Novo Paciente
+      </a>
+     </div>
+
+     <table class="modern-table" th:if="${!pacientes.empty}">
+      <thead>
+       <tr>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Telefone</th>
+        <th>CPF</th>
+        <th>Data Nascimento</th>
+        <th>Plano de Saúde</th>
+        <th>Status</th>
+        <th>Ações</th>
+       </tr>
+      </thead>
+
+      <tbody>
+       <tr th:each="paciente: ${pacientes.content}">
+        <td th:text="${paciente.nome}"></td>
+        <td th:text="${paciente.email}"></td>
+        <td th:text="${paciente.telefoneFormatado}"></td>
+        <td th:text="${paciente.cpfFormatado}"></td>
+        <td th:text="${paciente.dataNascimentoFormatada}"></td>
+        <td>
+         <span class="badge badge-info" th:text="${paciente.planoSaude ?: 'Particular'}"></span>
+        </td>
+        <td>
+         <span class="badge" th:classappend="${paciente.ativo} ? 'badge-success' : 'badge-secondary'"
+          th:text="${paciente.ativo} ? 'Ativo' : 'Inativo'"></span>
+        </td>
+        <td>
+         <div class="action-buttons">
+          <a href="#" class="action-btn edit" th:href="@{/pacientes/formulario?id={id}(id=${paciente.id})}"
+           title="Editar">
+           <img src="/static/assets/edit.svg" th:src="@{/assets/edit.svg}" alt="Editar">
+          </a>
+          <a href="#deleteModal" class="action-btn delete" data-toggle="modal" th:data-id="${paciente.id}"
+           data-url="/pacientes" title="Excluir">
+           <img src="/static/assets/delete.svg" th:src="@{/assets/delete.svg}" alt="Excluir">
+          </a>
+         </div>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+
+     <div class="empty-state" th:if="${pacientes.empty}">
+      <div class="empty-state-icon">👨‍⚕️</div>
+      <p class="empty-state-text">Nenhum paciente cadastrado ainda</p>
+      <a href="formulario-paciente.html" th:href="@{/pacientes/formulario}" class="modern-btn modern-btn-primary">
+       Cadastrar Primeiro Paciente
+      </a>
+     </div>
+
+     <div th:replace="~{componentes/_paginacao.html :: paginacao(url = 'pacientes', registros = ${pacientes})}"></div>
+    </section>
+   </main>
+  </div>
+
+  <div th:replace="~{componentes/_modal_excluir.html :: modal}"></div>
+ </div>
+</body>
+
+</html>

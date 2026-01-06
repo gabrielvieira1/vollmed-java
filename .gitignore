@@ -71,3 +71,11 @@ security-reports/
 # Arquivos temporários de scanners de segurança
 .snyk
 dependency-check-report.*
+/scripts/reports/*.md
+# Relatórios de vulnerabilidade gerados
+/scripts/reports/
+reports/
+data/
+
+# OWASP Dependency-Check cache
+data/

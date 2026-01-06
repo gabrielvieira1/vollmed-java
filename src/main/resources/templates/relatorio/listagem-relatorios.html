@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{template.html}">
+
+<head>
+  <title>Relatórios de Saúde</title>
+</head>
+
+<body>
+  <div layout:fragment="conteudo">
+    <div class="main-container">
+      <div class="page-header">
+        <div class="container">
+          <h1 class="page-title">Gerenciamento de Relatórios</h1>
+        </div>
+      </div>
+
+      <main class="container">
+        <!-- Mensagens de feedback -->
+        <div th:replace="~{componentes/_mensagens :: mensagens}"></div>
+
+        <section class="modern-card">
+          <div class="table-header">
+            <h2 class="table-title">Listagem de relatórios</h2>
+            <a href="#" th:href="@{/relatorios/formulario}" class="modern-btn modern-btn-success">
+              <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
+              Novo Relatório
+            </a>
+          </div>
+
+          <table class="modern-table" th:if="${!relatorios.empty}">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Médico</th>
+                <th>Paciente</th>
+                <th>Diagnóstico</th>
+                <th>CPF</th>
+                <th>SUS</th>
+                <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr th:each="relatorio : ${relatorios.content}">
+                <td th:text="${relatorio.id}"></td>
+                <td th:text="${relatorio.nomeMedico}"></td>
+                <td th:text="${relatorio.paciente}"></td>
+                <td>
+                  <span th:text="${relatorio.diagnostico}"
+                    style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;"></span>
+                </td>
+                <td th:text="${relatorio.cpfCompleto}"></td>
+                <td th:text="${relatorio.SUSCompleto}"></td>
+                <td th:text="${relatorio.dataGeracao}"></td>
+                <td>
+                  <div class="action-buttons">
+                    <a href="#" class="action-btn edit" th:href="@{/relatorios/formulario(id=${relatorio.id})}"
+                      title="Editar">
+                      <img src="/static/assets/edit.svg" th:src="@{/assets/edit.svg}" alt="Editar">
+                    </a>
+
+                    <!-- Botão de exportação PDF com checkbox -->
+                    <div class="pdf-export-container" style="display: inline-flex; align-items: center; gap: 5px;">
+                      <!-- Link direto para PDF (funciona mesmo sem JS) -->
+                      <a th:href="@{/relatorios/{id}/exportar-pdf(id=${relatorio.id},criptografado=false)}"
+                        class="action-btn pdf-export-btn pdf-link"
+                        style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;"
+                        title="Exportar PDF" th:data-id="${relatorio.id}" target="_blank">
+                        📄
+                      </a>
+                      <label style="font-size: 0.8em; color: #666; display: flex; align-items: center; gap: 2px;">
+                        <input type="checkbox" class="pdf-crypto-check" style="margin: 0;"
+                          title="Marcar para criptografar o PDF">
+                        <span style="transition: color 0.3s ease;"></span>
+                      </label>
+                    </div>
+
+                    <a href="#deleteModal" class="action-btn delete" data-toggle="modal" th:data-id="${relatorio.id}"
+                      data-url="/relatorios" title="Excluir">
+                      <img src="/static/assets/delete.svg" th:src="@{/assets/delete.svg}" alt="Excluir">
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="empty-state" th:if="${relatorios.empty}">
+            <div class="empty-state-icon">📋</div>
+            <p class="empty-state-text">Nenhum relatório médico cadastrado ainda</p>
+            <a href="#" th:href="@{/relatorios/formulario}" class="modern-btn modern-btn-primary">
+              Cadastrar Primeiro Relatório
+            </a>
+          </div>
+
+          <div th:replace="~{componentes/_paginacao :: paginacao('/relatorios', ${relatorios})}"></div>
+        </section>
+      </main>
+    </div>
+
+    <div th:replace="~{componentes/_modal_excluir :: modal}"></div>
+  </div>
+
+  <!-- Scripts específicos da página -->
+  <script th:inline="javascript">
+    function excluirRelatorio(id) {
+      confirmarExclusao('/relatorios', id);
+    }
+  </script>
+</body>
+
+</html>

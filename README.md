@@ -1,6 +1,6 @@
-# Vollmed Java Web Application
+# Vollmed Java Web Application - Sistema Completo com Shift-Left Security
 
-Este projeto é uma aplicação web completa desenvolvida em Java com Spring Boot, que simula um sistema de gerenciamento médico com agendamento de consultas. O sistema oferece uma interface moderna e responsiva para gerenciar médicos, consultas e usuários.
+Este projeto é uma aplicação web completa desenvolvida em Java com Spring Boot, que simula um sistema de gerenciamento médico com agendamento de consultas. O sistema oferece uma **interface moderna e responsiva** para gerenciar médicos, consultas e usuários, implementando uma **arquitetura de segurança robusta** com **vulnerabilidades educacionais intencionais** para demonstrar práticas de **Shift-Left Security**.
 
 ## ✨ Funcionalidades Principais
 
@@ -27,6 +27,78 @@ Este projeto é uma aplicação web completa desenvolvida em Java com Spring Boo
 - **Efeitos visuais modernos** (hover effects, sombras, transições)
 - **Totalmente responsivo** (mobile-first design)
 - **Experiência de usuário otimizada** com validações em tempo real
+
+## 🛡️ **Arquitetura de Segurança e DevSecOps**
+
+### 🚀 **Shift-Left Security Strategy**
+
+Este projeto implementa uma **estratégia completa de Shift-Left Security**, movendo a segurança para o início do ciclo de desenvolvimento:
+
+#### **Pipeline de Segurança Automatizado**
+```mermaid
+graph LR
+    A[Desenvolvedor] --> B[Git Commit]
+    B --> C[Pre-commit Hooks]
+    C --> D[Análise de Vulnerabilidades]
+    D --> E{Vulnerabilidades?}
+    E -->|Sim| F[❌ Commit Rejeitado]
+    E -->|Não| G[✅ Commit Aprovado]
+    F --> H[Correção Obrigatória]
+    H --> B
+```
+
+#### **Ferramentas de Segurança Integradas**
+- 🔍 **OWASP Dependency-Check** - Análise de dependências com vulnerabilidades conhecidas
+- 🔐 **GitLeaks** - Detecção de credenciais expostas e secrets hardcoded
+- 📊 **Snyk** - Análise de vulnerabilidades em dependências JavaScript/Java
+- 🛡️ **Semgrep** - Análise estática de código para padrões inseguros
+- 🤖 **IA Gemini** - Análise inteligente e relatórios automatizados
+
+### **Pipeline de Segurança Pre-Commit Detalhado**
+
+#### **Configuração do Pre-Commit (.pre-commit-config.yaml)**
+
+O sistema utiliza **pre-commit hooks** para executar análises de segurança automaticamente antes de cada commit:
+
+```yaml
+repos:
+  # Hooks básicos de qualidade de código
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  # Análise de dependências OWASP (instalação local)
+  - repo: local
+    hooks:
+      - id: owasp-dependency-check
+        name: OWASP Dependency-Check (Local)
+        entry: ~/dependency-check/bin/dependency-check.sh
+```
+
+### **Como Funciona o Pipeline de Segurança**
+
+#### **1. Execução Automática**
+- ✅ **Trigger**: A cada `git commit`
+- ⏱️ **Tempo médio**: ~10 segundos
+- 🔍 **Escopo**: Análise completa do projeto
+
+#### **2. Critérios de Aprovação/Rejeição**
+```bash
+✅ COMMIT APROVADO quando:
+   - Nenhuma vulnerabilidade CRITICAL detectada
+   - Nenhuma vulnerabilidade HIGH detectada
+   - Nenhum secret/credencial exposto
+   - Código passa em validações básicas
+
+❌ COMMIT REJEITADO quando:
+   - Vulnerabilidades CRITICAL ou HIGH encontradas
+   - Secrets/API keys detectados
+   - Arquivos grandes (>500KB) adicionados
+   - Sintaxe YAML inválida
+```
 
 ## 🛠 Tecnologias Utilizadas
 
@@ -184,13 +256,26 @@ src/main/resources/
 ## 🛡 Próximas Melhorias
 
 - [ ] Sistema de perfis de usuário (Admin/Médico/Recepcionista)
-- [ ] Dashboard com estatísticas
-- [ ] Sistema de notificações
+- [ ] Dashboard com estatísticas de segurança
+- [ ] Sistema de notificações de vulnerabilidades
 - [ ] API REST para integração mobile
-- [ ] Relatórios em PDF
+- [ ] Relatórios em PDF automáticos
 - [ ] Sistema de backup automático
+- [ ] **Integração com GitHub Actions** para CI/CD
+- [ ] **Alertas Slack/Teams** para vulnerabilidades críticas
+- [ ] **Dashboard Grafana** para métricas de segurança
 
 ## 📝 Changelog Recente
+
+### v3.0.0 - DevSecOps e Shift-Left Security (Atual)
+- ✅ **Pipeline completo de segurança** com pre-commit hooks
+- ✅ **OWASP Dependency-Check** integrado localmente (12.1.0)
+- ✅ **GitLeaks** para detecção de secrets
+- ✅ **Base NVD offline** (307.439 vulnerabilidades)
+- ✅ **Análise automatizada com IA** (Google Gemini)
+- ✅ **Scripts de relatório** executivos e técnicos
+- ✅ **Cache inteligente** para performance otimizada
+- ✅ **Rejeição automática** de commits inseguros
 
 ### v2.0.0 - Sistema de Autenticação e Design Moderno
 - ✅ Implementado sistema completo de registro de usuários
@@ -214,6 +299,3 @@ Este é um projeto de estudo focado em demonstrar:
 **Projeto desenvolvido para fins educacionais** 📚
 
 *Demonstrando integração completa entre backend robusto e frontend moderno*
-
-<!-- Test comment for pre-commit -->
-<!-- Another test comment -->

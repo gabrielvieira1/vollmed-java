@@ -1,19 +1,27 @@
 package med.voll.web_application.controller;
 
-import jakarta.validation.Valid;
-import med.voll.web_application.domain.RegraDeNegocioException;
-import med.voll.web_application.domain.medico.DadosCadastroMedico;
-import med.voll.web_application.domain.medico.DadosListagemMedico;
-import med.voll.web_application.domain.medico.Especialidade;
-import med.voll.web_application.domain.medico.MedicoService;
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.List;
+import jakarta.validation.Valid;
+import med.voll.web_application.domain.exception.RegraDeNegocioException;
+import med.voll.web_application.domain.medico.DadosCadastroMedico;
+import med.voll.web_application.domain.medico.DadosListagemMedico;
+import med.voll.web_application.domain.medico.Especialidade;
+import med.voll.web_application.domain.medico.MedicoService;
 
 @Controller
 @RequestMapping("medicos")
@@ -53,7 +61,8 @@ public class MedicoController {
     }
 
     @PostMapping
-    public String cadastrar(@Valid @ModelAttribute("dados") DadosCadastroMedico dados, BindingResult result, Model model) {
+    public String cadastrar(@Valid @ModelAttribute("dados") DadosCadastroMedico dados, BindingResult result,
+            Model model) {
         if (result.hasErrors()) {
             model.addAttribute("dados", dados);
             return PAGINA_CADASTRO;

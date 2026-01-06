@@ -1,13 +1,14 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v6.0.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
+      - id: trailing-whitespace # Remove espaços em branco no final das linhas
+      - id: end-of-file-fixer # Garanta que arquivos terminem com uma nova linha
+      - id: check-yaml # Valida sintaxe de arquivos YAML
+      - id: check-added-large-files # Impede commit de arquivos grandes (>500kB)
 
-  - repo: local
+  - repo: git@ssh.dev.azure.com:v3/gabrielvieira4102/precommit-hook-custom/precommit-hook-custom
+    rev: b29e74abff13ea18d4fa8686415745e55aa60bc3
     hooks:
       - id: snyk-security-sca-scan
         name: Snyk Security SCA Scan

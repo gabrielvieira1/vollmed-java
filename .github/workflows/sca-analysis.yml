@@ -1,0 +1,323 @@
+name: 🐍 Software Composition Analysis (SCA)
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Run in test mode (succeeds even with vulnerabilities)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      fail_on_critical:
+        description: 'Fail build on critical vulnerabilities'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      fail_on_high:
+        description: 'Fail build on high severity vulnerabilities'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+  workflow_call:
+    inputs:
+      test_mode:
+        description: 'Run in test mode'
+        required: false
+        type: string
+        default: 'false'
+      fail_on_critical:
+        description: 'Fail on critical vulnerabilities'
+        required: false
+        type: string
+        default: 'true'
+      fail_on_high:
+        description: 'Fail on high vulnerabilities'
+        required: false
+        type: string
+        default: 'false'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  # Security Configuration
+  FAIL_ON_CRITICAL: ${{ github.event.inputs.fail_on_critical || inputs.fail_on_critical || 'true' }}
+  FAIL_ON_HIGH: ${{ github.event.inputs.fail_on_high || inputs.fail_on_high || 'false' }}
+  TEST_MODE: ${{ github.event.inputs.test_mode || inputs.test_mode || 'false' }}
+
+jobs:
+  dependency-analysis:
+    name: 🐍 Snyk - Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: 🔨 Build Project
+        run: |
+          echo "🔨 Compiling project dependencies..."
+          ./mvnw clean compile -DskipTests
+          echo "✅ Project compilation completed"
+
+      - name: 🐍 Run Snyk Dependency Analysis
+        id: snyk-scan
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          echo "🔍 Starting Snyk Software Composition Analysis..."
+
+          # Create artifacts directory
+          mkdir -p artifacts logs
+
+          # Run Snyk via Docker (consistent with pre-commit setup)
+          if [ -n "$SNYK_TOKEN" ]; then
+            echo "🔐 Running authenticated Snyk scan with full features..."
+            docker run --rm \
+              -e SNYK_TOKEN="$SNYK_TOKEN" \
+              -v $(pwd):/project \
+              -w /project \
+              snyk/snyk:java \
+              snyk test \
+              --package-manager=maven \
+              --severity-threshold=medium \
+              --json-file-output=artifacts/snyk-results.json \
+              --sarif-file-output=artifacts/snyk-results.sarif \
+              2>&1 | tee artifacts/snyk-output.log || echo "SNYK_SCAN_FAILED=true" >> $GITHUB_ENV
+          else
+            echo "⚠️ SNYK_TOKEN not configured - running with limited features..."
+            docker run --rm \
+              -v $(pwd):/project \
+              -w /project \
+              snyk/snyk:java \
+              snyk test \
+              --package-manager=maven \
+              --severity-threshold=medium \
+              --json-file-output=artifacts/snyk-results.json \
+              2>&1 | tee artifacts/snyk-output.log || echo "SNYK_SCAN_FAILED=true" >> $GITHUB_ENV
+          fi
+
+          echo "📋 Dependency analysis completed, results in artifacts/"
+        continue-on-error: true
+
+      - name: 📊 Process Dependency Scan Results
+        if: always()
+        run: |
+          echo "📋 Processing Snyk dependency vulnerability results..."
+
+          # Generate comprehensive vulnerability report
+          if [ -f "artifacts/snyk-results.json" ]; then
+            echo "# 🐍 Software Composition Analysis (SCA) Report" > artifacts/sca-summary.md
+            echo "" >> artifacts/sca-summary.md
+            echo "**Repository:** ${{ github.repository }}" >> artifacts/sca-summary.md
+            echo "**Branch:** ${{ github.ref_name }}" >> artifacts/sca-summary.md
+            echo "**Commit:** \`${{ github.sha }}\`" >> artifacts/sca-summary.md
+            echo "**Scan Date:** $(date '+%Y-%m-%d %H:%M:%S UTC')" >> artifacts/sca-summary.md
+            echo "**Tool:** Snyk (Software Composition Analysis)" >> artifacts/sca-summary.md
+            echo "**Package Manager:** Maven" >> artifacts/sca-summary.md
+            echo "" >> artifacts/sca-summary.md
+
+            # Parse vulnerability data with jq
+            if command -v jq >/dev/null 2>&1; then
+              TOTAL_VULNS=$(jq '.vulnerabilities | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              CRITICAL_VULNS=$(jq '[.vulnerabilities[] | select(.severity == "critical")] | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              HIGH_VULNS=$(jq '[.vulnerabilities[] | select(.severity == "high")] | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              MEDIUM_VULNS=$(jq '[.vulnerabilities[] | select(.severity == "medium")] | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              LOW_VULNS=$(jq '[.vulnerabilities[] | select(.severity == "low")] | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+
+              # Get dependency statistics
+              TOTAL_DEPS=$(jq '.dependencyCount // 0' artifacts/snyk-results.json 2>/dev/null || echo "0")
+
+              echo "## 📊 Vulnerability Summary" >> artifacts/sca-summary.md
+              echo "- **Total Dependencies Scanned:** $TOTAL_DEPS" >> artifacts/sca-summary.md
+              echo "- **Total Vulnerabilities:** $TOTAL_VULNS" >> artifacts/sca-summary.md
+              echo "- **🚨 Critical Severity:** $CRITICAL_VULNS" >> artifacts/sca-summary.md
+              echo "- **🔴 High Severity:** $HIGH_VULNS" >> artifacts/sca-summary.md
+              echo "- **🟡 Medium Severity:** $MEDIUM_VULNS" >> artifacts/sca-summary.md
+              echo "- **🔵 Low Severity:** $LOW_VULNS" >> artifacts/sca-summary.md
+              echo "" >> artifacts/sca-summary.md
+
+              if [ "$TOTAL_VULNS" -gt "0" ]; then
+                echo "## 🚨 Critical & High Severity Vulnerabilities" >> artifacts/sca-summary.md
+                echo "" >> artifacts/sca-summary.md
+
+                # Extract critical and high severity vulnerabilities
+                jq -r '
+                  .vulnerabilities[] |
+                  select(.severity == "critical" or .severity == "high") |
+                  "### " + .title + " (" + (.severity | ascii_upcase) + ")\n" +
+                  "- **Package:** " + .packageName + "@" + .version + "\n" +
+                  "- **CVE:** " + (.identifiers.CVE[0] // "N/A") + "\n" +
+                  "- **CVSS Score:** " + (.cvssScore | tostring) + "\n" +
+                  "- **Description:** " + (.description // "N/A") + "\n" +
+                  "- **Fix:** " + (if .isUpgradable then ("Upgrade to " + .upgradeTo) else "No automatic fix available" end) + "\n"
+                ' artifacts/snyk-results.json >> artifacts/sca-summary.md
+
+                echo "" >> artifacts/sca-summary.md
+                echo "## 🛠️ Remediation Strategy" >> artifacts/sca-summary.md
+                echo "1. **Immediate:** Address all CRITICAL severity vulnerabilities" >> artifacts/sca-summary.md
+                echo "2. **Priority:** Upgrade packages with available fixes" >> artifacts/sca-summary.md
+                echo "3. **Assessment:** Evaluate impact of HIGH severity issues" >> artifacts/sca-summary.md
+                echo "4. **Monitoring:** Set up dependency update automation" >> artifacts/sca-summary.md
+                echo "5. **Policy:** Implement security gates in CI/CD pipeline" >> artifacts/sca-summary.md
+              else
+                echo "✅ **No vulnerabilities detected!** All dependencies are secure." >> artifacts/sca-summary.md
+                echo "" >> artifacts/sca-summary.md
+                echo "## 🛡️ Security Recommendations" >> artifacts/sca-summary.md
+                echo "- Continue regular dependency updates" >> artifacts/sca-summary.md
+                echo "- Monitor for new vulnerabilities in existing dependencies" >> artifacts/sca-summary.md
+                echo "- Consider implementing automated dependency updates" >> artifacts/sca-summary.md
+              fi
+            else
+              echo "⚠️ Detailed vulnerability analysis unavailable (jq not found)" >> artifacts/sca-summary.md
+            fi
+          else
+            echo "# ⚠️ SCA Analysis Report - Scan Issues" > artifacts/sca-summary.md
+            echo "" >> artifacts/sca-summary.md
+            echo "**Status:** Dependency scan could not complete or no results generated." >> artifacts/sca-summary.md
+            echo "**Possible Issues:** Missing dependencies, authentication problems, or scan timeout." >> artifacts/sca-summary.md
+            echo "**Recommendation:** Check scan logs and retry if necessary." >> artifacts/sca-summary.md
+          fi
+
+      - name: 📈 Vulnerability Dashboard Summary
+        if: always()
+        run: |
+          echo "## 🐍 Software Composition Analysis Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "artifacts/snyk-results.json" ]; then
+            if command -v jq >/dev/null 2>&1; then
+              # Parse comprehensive metrics
+              TOTAL_VULNS=$(jq '.vulnerabilities | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              CRITICAL_VULNS=$(jq '[.vulnerabilities[] | select(.severity == "critical")] | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              HIGH_VULNS=$(jq '[.vulnerabilities[] | select(.severity == "high")] | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              MEDIUM_VULNS=$(jq '[.vulnerabilities[] | select(.severity == "medium")] | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              LOW_VULNS=$(jq '[.vulnerabilities[] | select(.severity == "low")] | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              UPGRADABLE_VULNS=$(jq '[.vulnerabilities[] | select(.isUpgradable == true)] | length' artifacts/snyk-results.json 2>/dev/null || echo "0")
+              TOTAL_DEPS=$(jq '.dependencyCount // 0' artifacts/snyk-results.json 2>/dev/null || echo "0")
+
+              echo "### 📊 Dependency Security Analysis" >> $GITHUB_STEP_SUMMARY
+              echo "- **Total Dependencies**: $TOTAL_DEPS" >> $GITHUB_STEP_SUMMARY
+              echo "- **Total Vulnerabilities**: $TOTAL_VULNS" >> $GITHUB_STEP_SUMMARY
+              echo "- **🚨 Critical Severity**: $CRITICAL_VULNS" >> $GITHUB_STEP_SUMMARY
+              echo "- **🔴 High Severity**: $HIGH_VULNS" >> $GITHUB_STEP_SUMMARY
+              echo "- **🟡 Medium Severity**: $MEDIUM_VULNS" >> $GITHUB_STEP_SUMMARY
+              echo "- **🔵 Low Severity**: $LOW_VULNS" >> $GITHUB_STEP_SUMMARY
+              echo "- **🔧 Fixable by Upgrade**: $UPGRADABLE_VULNS" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+
+              # Determine risk assessment
+              if [ "$CRITICAL_VULNS" -gt "0" ]; then
+                RISK_LEVEL="CRITICAL"
+                RISK_COLOR="🚨"
+                RISK_MESSAGE="Immediate attention required"
+              elif [ "$HIGH_VULNS" -gt "0" ]; then
+                RISK_LEVEL="HIGH"
+                RISK_COLOR="🔴"
+                RISK_MESSAGE="Priority remediation needed"
+              elif [ "$MEDIUM_VULNS" -gt "0" ]; then
+                RISK_LEVEL="MEDIUM"
+                RISK_COLOR="🟡"
+                RISK_MESSAGE="Review and plan fixes"
+              elif [ "$LOW_VULNS" -gt "0" ]; then
+                RISK_LEVEL="LOW"
+                RISK_COLOR="🔵"
+                RISK_MESSAGE="Monitor and address when convenient"
+              else
+                RISK_LEVEL="SECURE"
+                RISK_COLOR="✅"
+                RISK_MESSAGE="No vulnerabilities detected"
+              fi
+
+              echo "### 🛡️ Security Assessment" >> $GITHUB_STEP_SUMMARY
+              echo "- **Risk Level**: $RISK_COLOR $RISK_LEVEL" >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: $RISK_MESSAGE" >> $GITHUB_STEP_SUMMARY
+
+              if [ "$TOTAL_VULNS" -gt "0" ]; then
+                echo "- **Action Items**: Download detailed report from artifacts" >> $GITHUB_STEP_SUMMARY
+
+                if [ "$UPGRADABLE_VULNS" -gt "0" ]; then
+                  echo "- **Quick Wins**: $UPGRADABLE_VULNS vulnerabilities can be fixed by dependency upgrades" >> $GITHUB_STEP_SUMMARY
+                fi
+
+                # Handle failure logic based on severity and configuration
+                SHOULD_FAIL=false
+
+                if [[ "${{ env.TEST_MODE }}" != "true" ]]; then
+                  if [ "$CRITICAL_VULNS" -gt "0" ] && [[ "${{ env.FAIL_ON_CRITICAL }}" == "true" ]]; then
+                    echo "::error title=Critical Vulnerabilities Found::$CRITICAL_VULNS critical vulnerabilities detected in dependencies"
+                    SHOULD_FAIL=true
+                  elif [ "$HIGH_VULNS" -gt "0" ] && [[ "${{ env.FAIL_ON_HIGH }}" == "true" ]]; then
+                    echo "::error title=High Severity Vulnerabilities::$HIGH_VULNS high severity vulnerabilities detected"
+                    SHOULD_FAIL=true
+                  fi
+
+                  if [ "$SHOULD_FAIL" = true ]; then
+                    exit 1
+                  fi
+                else
+                  echo "::warning title=Test Mode - Vulnerabilities Found::$CRITICAL_VULNS critical, $HIGH_VULNS high vulnerabilities found but continuing in test mode"
+                fi
+              else
+                echo "- **Recommendation**: Continue monitoring dependencies for new vulnerabilities" >> $GITHUB_STEP_SUMMARY
+              fi
+
+              # Add configuration summary
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### ⚙️ Scan Configuration" >> $GITHUB_STEP_SUMMARY
+              echo "- **Test Mode**: ${{ env.TEST_MODE }}" >> $GITHUB_STEP_SUMMARY
+              echo "- **Fail on Critical**: ${{ env.FAIL_ON_CRITICAL }}" >> $GITHUB_STEP_SUMMARY
+              echo "- **Fail on High**: ${{ env.FAIL_ON_HIGH }}" >> $GITHUB_STEP_SUMMARY
+              echo "- **Minimum Severity**: Medium" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ℹ️ **Status**: Dependency scan completed (detailed metrics unavailable)" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            if [[ "$SNYK_SCAN_FAILED" == "true" ]]; then
+              echo "- ⚠️ **Status**: Dependency scan failed or results unavailable" >> $GITHUB_STEP_SUMMARY
+              echo "- 📋 **Action**: Check SNYK_TOKEN configuration and scan logs" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ✅ **Status**: No vulnerabilities detected in dependencies" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📚 Security Resources:" >> $GITHUB_STEP_SUMMARY
+          echo "- [Snyk Documentation](https://docs.snyk.io/)" >> $GITHUB_STEP_SUMMARY
+          echo "- [OWASP Dependency Check](https://owasp.org/www-project-dependency-check/)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Maven Security Best Practices](https://maven.apache.org/security.html)" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📤 Upload SCA Analysis Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sca-analysis-results
+          path: |
+            artifacts/
+          retention-days: 30
+
+      - name: 📋 Upload SARIF to GitHub Security
+        if: always() && hashFiles('artifacts/snyk-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: artifacts/snyk-results.sarif
+          category: sca-analysis

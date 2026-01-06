@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt-br"
-      xmlns:th="http://thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://thymeleaf.org">
+
 <head>
     <title>Sair - Voll.med</title>
     <meta charset="UTF-8">
@@ -22,10 +22,11 @@
 
             <p class="logout-message">
                 Tem certeza que deseja sair do sistema?<br>
-                <small style="color: #6c757d; font-size: 16px;">Você precisará fazer login novamente para acessar.</small>
+                <small style="color: #6c757d; font-size: 16px;">Você precisará fazer login novamente para
+                    acessar.</small>
             </p>
 
-            <form th:action="@{/logout}" method="post">
+            <form th:action="@{/perform-logout}" method="post">
                 <div class="auth-buttons">
                     <a th:href="@{/}" class="auth-btn btn-secondary">
                         Cancelar
