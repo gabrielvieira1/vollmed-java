@@ -12,23 +12,25 @@ repos:
       - id: snyk-security-sca-scan
         name: Snyk Security SCA Scan
         description: Multi-language dependency vulnerability scanning with Snyk
-        entry: bash -c "snyk test --all-projects > logs/snyk.log 2>&1"
-        language: system
-        pass_filenames: false
-        stages: [pre-commit]
+        entry: pre-commit-scripts/snyk-scan.bat # Relative path to the script
+        language: script # Use 'script' language type
 
+  - repo: local
+    hooks:
       - id: gitleaks-secrets-scan
         name: GitLeaks Secrets Scanner
         description: Detect hardcoded secrets like passwords, api keys, and tokens in git repos
-        entry: bash -c "docker run --rm -v \"$PWD\":/scan zricethezav/gitleaks:latest detect --source /scan --no-git --verbose > logs/gitleaks.log 2>&1"
-        language: system
-        stages: [pre-commit]
+        entry: pre-commit-scripts/gitleaks-scan.bat # Relative path to the script
+        language: script # Use 'script' language type
         pass_filenames: false
+        stages: [pre-commit]
 
+  - repo: local
+    hooks:
       - id: semgrep-sast-scan
         name: Semgrep Security SAST Scan
         description: Static analysis for security vulnerabilities with Semgrep
-        entry: bash -c "docker run --rm -v \"$PWD\":/src returntocorp/semgrep semgrep --config=auto --json --error /src > logs/semgrep.log 2>&1"
-        language: system
+        entry: pre-commit-scripts/semgrep-scan.bat # Relative path to the script
+        language: script # Use 'script' language type
         pass_filenames: false
         stages: [pre-commit]

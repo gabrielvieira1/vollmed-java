@@ -124,7 +124,9 @@ src/main/java/med/voll/web_application/
 │   └── usuario/       # Sistema de usuários
 └── infra/             # Configurações e infraestrutura
     └── security/      # Configurações Spring Security
+```
 
+```
 src/main/resources/
 ├── templates/         # Templates Thymeleaf
 │   ├── autenticacao/ # Páginas de login/registro
@@ -212,3 +214,6 @@ Este é um projeto de estudo focado em demonstrar:
 **Projeto desenvolvido para fins educacionais** 📚
 
 *Demonstrando integração completa entre backend robusto e frontend moderno*
+
+<!-- Test comment for pre-commit -->
+<!-- Another test comment -->
