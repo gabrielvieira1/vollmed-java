@@ -56,7 +56,7 @@ public class MedicoService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<DadosListagemMedico> buscarPorNomeVulneravel(String nome) {
+    public List<DadosListagemMedico> buscarPorNome(String nome) {
         String sql = "SELECT * FROM medicos WHERE nome LIKE '%" + nome + "%'";
 
         Query query = entityManager.createNativeQuery(sql, Medico.class);

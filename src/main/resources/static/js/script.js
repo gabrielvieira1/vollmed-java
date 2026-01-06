@@ -225,4 +225,104 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("=== EVENT LISTENERS DE BUSCA ADICIONADOS ===");
   }
+
+  // Busca de Médicos - seguindo padrão do projeto
+  const searchDoctorInput = document.getElementById("searchDoctorInput");
+  const searchDoctorBtn = document.getElementById("searchDoctorBtn");
+  const searchDoctorResults = document.getElementById("search-results-doctor");
+  const searchDoctorOutput = document.getElementById("search-output-doctor");
+
+  if (
+    searchDoctorInput &&
+    searchDoctorBtn &&
+    searchDoctorResults &&
+    searchDoctorOutput
+  ) {
+    console.log("=== ELEMENTOS DE BUSCA DE MÉDICOS ENCONTRADOS ===");
+
+    function realizarBuscaMedicos() {
+      const termo = searchDoctorInput.value.trim();
+      console.log("=== BUSCA DE MÉDICOS INICIADA ===");
+      console.log("Termo:", termo);
+
+      if (!termo) {
+        alert("Digite um nome para buscar");
+        return;
+      }
+
+      // Mostra a seção de resultados
+      searchDoctorResults.style.display = "block";
+      searchDoctorOutput.innerHTML =
+        '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+
+      const url = `/medicos/buscar?nome=${encodeURIComponent(termo)}`;
+      console.log("URL de busca:", url);
+
+      fetch(url, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      })
+        .then((response) => {
+          console.log("=== RESPOSTA DA BUSCA DE MÉDICOS ===");
+          console.log("Status:", response.status);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("=== DADOS DE MÉDICOS RECEBIDOS ===");
+          console.log("Data:", data);
+          console.log("Array?", Array.isArray(data));
+          console.log("Length:", data.length);
+
+          let html = `<strong>🔍 Busca por:</strong> "${termo}"<br>`;
+          html += `<strong>📊 Resultados:</strong> ${data.length} médico(s)<br><br>`;
+
+          if (data.length > 0) {
+            data.forEach((m) => {
+              html += `<div style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px; border-left: 4px solid #007bff;">`;
+              html += `<strong>${m.nome}</strong><br>`;
+              html += `📧 ${m.email}<br>`;
+              html += `🏥 CRM: ${m.crm}<br>`;
+              html += `🩺 ${m.especialidade}`;
+              html += `</div>`;
+            });
+          } else {
+            html +=
+              '<div style="color: #6c757d;">Nenhum médico encontrado.</div>';
+          }
+
+          searchDoctorOutput.innerHTML = html;
+          console.log("=== HTML DE MÉDICOS ATUALIZADO ===");
+        })
+        .catch((error) => {
+          console.error("=== ERRO NA BUSCA DE MÉDICOS ===");
+          console.error("Error:", error);
+          searchDoctorOutput.innerHTML = `
+          <div style="color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 5px;">
+            <strong>❌ Erro:</strong> ${error.message}
+          </div>`;
+        });
+    }
+
+    // Event listeners - seguindo padrão do projeto
+    searchDoctorBtn.addEventListener("click", function () {
+      console.log("=== BOTÃO DE BUSCA DE MÉDICOS CLICADO ===");
+      realizarBuscaMedicos();
+    });
+
+    searchDoctorInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        console.log("=== ENTER PRESSIONADO NA BUSCA DE MÉDICOS ===");
+        e.preventDefault();
+        realizarBuscaMedicos();
+      }
+    });
+
+    console.log("=== EVENT LISTENERS DE BUSCA DE MÉDICOS ADICIONADOS ===");
+  }
 });

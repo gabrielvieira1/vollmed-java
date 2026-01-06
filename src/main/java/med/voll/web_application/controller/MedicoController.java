@@ -90,9 +90,11 @@ public class MedicoController {
         return service.listarPorEspecialidade(Especialidade.valueOf(especialidade));
     }
 
+    // ⚠️ ENDPOINT VULNERÁVEL - PARA DEMONSTRAÇÃO EDUCACIONAL
+    // Este endpoint demonstra SQL Injection via concatenação de strings
     @GetMapping("buscar")
     @ResponseBody
     public List<DadosListagemMedico> buscarMedicosPorNome(@RequestParam String nome) {
-        return service.buscarPorNomeVulneravel(nome);
+        return service.buscarPorNome(nome);
     }
 }

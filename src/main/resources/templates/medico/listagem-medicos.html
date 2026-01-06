@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="pt"
-      xmlns:th="http://thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{template.html}">
+<html lang="pt" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{template.html}">
+
 <head>
     <title>Listagem de Médicos</title>
 </head>
@@ -17,11 +16,42 @@
             </div>
 
             <main class="container">
+                <!-- Seção de Busca -->
+                <section class="modern-card" style="margin-bottom: 20px;">
+                    <div class="table-header" style="margin-bottom: 15px;">
+                        <h3 class="table-title">Buscar Médicos</h3>
+                    </div>
+                    <div style="padding: 0 20px 20px 20px;">
+                        <div class="modern-form-group" style="display: flex; gap: 15px; align-items: end;">
+                            <div style="flex: 1;">
+                                <label for="searchDoctorInput">Nome do Médico</label>
+                                <input type="text" id="searchDoctorInput" placeholder="Digite o nome do médico..."
+                                    style="width: 100%;">
+                            </div>
+                            <div>
+                                <button id="searchDoctorBtn" class="modern-btn modern-btn-primary">
+                                    <i class="fas fa-search" style="margin-right: 8px;"></i>Buscar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Resultados da busca -->
+                        <div id="search-results-doctor" style="display:none; margin-top: 20px;">
+                            <div class="modern-alert"
+                                style="background: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 8px;">
+                                <div id="search-output-doctor"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <section class="modern-card">
                     <div class="table-header">
                         <h2 class="table-title">Listagem de médicos</h2>
-                        <a href="formulario-medico.html" th:href="@{/medicos/formulario}" class="modern-btn modern-btn-success">
-                            <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
+                        <a href="formulario-medico.html" th:href="@{/medicos/formulario}"
+                            class="modern-btn modern-btn-success">
+                            <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar"
+                                class="btn-icon">
                             Novo Médico
                         </a>
                     </div>
@@ -45,11 +75,15 @@
                                 <td th:text="${medico.especialidade}"></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="#" class="action-btn edit" th:href="@{/medicos/formulario?id={id}(id=${medico.id})}" title="Editar">
-                                            <img src="/static/assets/edit.svg" th:src="@{/assets/edit.svg}" alt="Editar">
+                                        <a href="#" class="action-btn edit"
+                                            th:href="@{/medicos/formulario?id={id}(id=${medico.id})}" title="Editar">
+                                            <img src="/static/assets/edit.svg" th:src="@{/assets/edit.svg}"
+                                                alt="Editar">
                                         </a>
-                                        <a href="#deleteModal" class="action-btn delete" data-toggle="modal" th:data-id="${medico.id}" data-url="/medicos" title="Excluir">
-                                            <img src="/static/assets/delete.svg" th:src="@{/assets/delete.svg}" alt="Excluir">
+                                        <a href="#deleteModal" class="action-btn delete" data-toggle="modal"
+                                            th:data-id="${medico.id}" data-url="/medicos" title="Excluir">
+                                            <img src="/static/assets/delete.svg" th:src="@{/assets/delete.svg}"
+                                                alt="Excluir">
                                         </a>
                                     </div>
                                 </td>
@@ -60,12 +94,15 @@
                     <div class="empty-state" th:if="${medicos.empty}">
                         <div class="empty-state-icon">👨‍⚕️</div>
                         <p class="empty-state-text">Nenhum médico cadastrado ainda</p>
-                        <a href="formulario-medico.html" th:href="@{/medicos/formulario}" class="modern-btn modern-btn-primary">
+                        <a href="formulario-medico.html" th:href="@{/medicos/formulario}"
+                            class="modern-btn modern-btn-primary">
                             Cadastrar Primeiro Médico
                         </a>
                     </div>
 
-                    <div th:replace="~{componentes/_paginacao.html :: paginacao(url = 'medicos', registros = ${medicos})}"></div>
+                    <div
+                        th:replace="~{componentes/_paginacao.html :: paginacao(url = 'medicos', registros = ${medicos})}">
+                    </div>
                 </section>
             </main>
         </div>
@@ -73,4 +110,5 @@
         <div th:replace="~{componentes/_modal_excluir.html :: modal}"></div>
     </div>
 </body>
+
 </html>
