@@ -34,7 +34,7 @@ public class ConfiguracoesSeguranca {
     return http
         .authorizeHttpRequests(req -> {
           req.requestMatchers("/css/**", "/js/**", "/assets/**", "/", "/index", "/home",
-              "/registro", "/logout", "/pacientes/buscar-vulneravel", "/pacientes/buscar-seguro")
+              "/registro", "/logout")
               .permitAll();
           req.requestMatchers("/relatorios/*/exportar-pdf").authenticated();
           req.anyRequest().authenticated();
@@ -51,7 +51,7 @@ public class ConfiguracoesSeguranca {
         .rememberMe(remember -> remember
             .key("vollmed")
             .alwaysRemember(true))
-        .csrf(csrf -> csrf.disable()) // Desabilitado para simplificar demonstrações
+        .csrf(csrf -> csrf.disable())
         .build();
   }
 

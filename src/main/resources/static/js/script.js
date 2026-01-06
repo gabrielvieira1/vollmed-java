@@ -153,9 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
       searchOutput.innerHTML =
         '<i class="fas fa-spinner fa-spin"></i> Buscando...';
 
-      const url = `/pacientes/buscar-vulneravel?nome=${encodeURIComponent(
-        termo
-      )}`;
+      const url = `/pacientes/buscar?nome=${encodeURIComponent(termo)}`;
       console.log("URL de busca:", url);
 
       fetch(url, {

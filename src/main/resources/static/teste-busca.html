@@ -2,113 +2,113 @@
 <html>
 
 <head>
- <title>Teste de Busca</title>
- <style>
-  body {
-   font-family: Arial, sans-serif;
-   padding: 20px;
-  }
+  <title>Teste de Busca</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
 
-  .search-container {
-   margin-bottom: 20px;
-  }
+    .search-container {
+      margin-bottom: 20px;
+    }
 
-  input {
-   padding: 10px;
-   width: 300px;
-   margin-right: 10px;
-  }
+    input {
+      padding: 10px;
+      width: 300px;
+      margin-right: 10px;
+    }
 
-  button {
-   padding: 10px 20px;
-   background: #007bff;
-   color: white;
-   border: none;
-   cursor: pointer;
-  }
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
 
-  .results {
-   margin-top: 20px;
-   padding: 15px;
-   background: #f8f9fa;
-   border-radius: 5px;
-  }
- </style>
+    .results {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 
 <body>
- <h1>Teste de Busca de Pacientes</h1>
+  <h1>Teste de Busca de Pacientes</h1>
 
- <div class="search-container">
-  <input type="text" id="searchInput" placeholder="Digite o nome do paciente..." value="Ana">
-  <button id="searchBtn">Buscar</button>
- </div>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Digite o nome do paciente..." value="Ana">
+    <button id="searchBtn">Buscar</button>
+  </div>
 
- <div id="results" class="results" style="display:none;">
-  <div id="output"></div>
- </div>
+  <div id="results" class="results" style="display:none;">
+    <div id="output"></div>
+  </div>
 
- <script>
-  document.getElementById('searchBtn').addEventListener('click', function () {
-   const termo = document.getElementById('searchInput').value.trim();
-   if (!termo) {
-    alert('Digite um nome para buscar');
-    return;
-   }
+  <script>
+    document.getElementById('searchBtn').addEventListener('click', function () {
+      const termo = document.getElementById('searchInput').value.trim();
+      if (!termo) {
+        alert('Digite um nome para buscar');
+        return;
+      }
 
-   const resultsDiv = document.getElementById('results');
-   const outputDiv = document.getElementById('output');
+      const resultsDiv = document.getElementById('results');
+      const outputDiv = document.getElementById('output');
 
-   resultsDiv.style.display = 'block';
-   outputDiv.innerHTML = 'Buscando...';
+      resultsDiv.style.display = 'block';
+      outputDiv.innerHTML = 'Buscando...';
 
-   const url = `http://localhost:8080/pacientes/buscar-vulneravel?nome=${encodeURIComponent(termo)}`;
+      const url = `http://localhost:8080/pacientes/buscar?nome=${encodeURIComponent(termo)}`;
 
-   console.log('Fazendo requisição para:', url);
+      console.log('Fazendo requisição para:', url);
 
-   fetch(url, {
-    method: 'GET',
-    headers: {
-     'Accept': 'application/json'
-    }
-   })
-    .then(response => {
-     console.log('Response:', response);
-     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-     }
-     return response.json();
-    })
-    .then(data => {
-     console.log('Data received:', data);
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+        .then(response => {
+          console.log('Response:', response);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Data received:', data);
 
-     let html = `<strong>Busca por:</strong> "${termo}"<br>`;
-     html += `<strong>Resultados:</strong> ${data.length} paciente(s)<br><br>`;
+          let html = `<strong>Busca por:</strong> "${termo}"<br>`;
+          html += `<strong>Resultados:</strong> ${data.length} paciente(s)<br><br>`;
 
-     if (data.length > 0) {
-      data.forEach(p => {
-       html += `<div style="margin: 10px 0; padding: 10px; border: 1px solid #ddd;">`;
-       html += `<strong>${p.nome}</strong><br>`;
-       html += `Email: ${p.email}<br>`;
-       html += `CPF: ${p.cpfFormatado}<br>`;
-       html += `Telefone: ${p.telefoneFormatado}`;
-       html += `</div>`;
-      });
-     }
+          if (data.length > 0) {
+            data.forEach(p => {
+              html += `<div style="margin: 10px 0; padding: 10px; border: 1px solid #ddd;">`;
+              html += `<strong>${p.nome}</strong><br>`;
+              html += `Email: ${p.email}<br>`;
+              html += `CPF: ${p.cpfFormatado}<br>`;
+              html += `Telefone: ${p.telefoneFormatado}`;
+              html += `</div>`;
+            });
+          }
 
-     outputDiv.innerHTML = html;
-    })
-    .catch(error => {
-     console.error('Erro:', error);
-     outputDiv.innerHTML = `<div style="color: red;">Erro: ${error.message}</div>`;
+          outputDiv.innerHTML = html;
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          outputDiv.innerHTML = `<div style="color: red;">Erro: ${error.message}</div>`;
+        });
     });
-  });
 
-  // Auto-clique para testar
-  setTimeout(() => {
-   document.getElementById('searchBtn').click();
-  }, 1000);
- </script>
+    // Auto-clique para testar
+    setTimeout(() => {
+      document.getElementById('searchBtn').click();
+    }, 1000);
+  </script>
 </body>
 
 </html>

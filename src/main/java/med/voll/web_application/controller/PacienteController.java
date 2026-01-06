@@ -27,93 +27,86 @@ import med.voll.web_application.domain.paciente.PacienteService;
 @RequestMapping("pacientes")
 public class PacienteController {
 
- private static final String PAGINA_LISTAGEM = "paciente/listagem-pacientes";
- private static final String PAGINA_CADASTRO = "paciente/formulario-paciente";
- private static final String REDIRECT_LISTAGEM = "redirect:/pacientes?sucesso";
+  private static final String PAGINA_LISTAGEM = "paciente/listagem-pacientes";
+  private static final String PAGINA_CADASTRO = "paciente/formulario-paciente";
+  private static final String REDIRECT_LISTAGEM = "redirect:/pacientes?sucesso";
 
- private final PacienteService service;
+  private final PacienteService service;
 
- public PacienteController(PacienteService service) {
-  this.service = service;
- }
-
- @GetMapping
- public String carregarPaginaListagem(@PageableDefault Pageable paginacao, Model model) {
-  var pacientesCadastrados = service.listar(paginacao);
-  model.addAttribute("pacientes", pacientesCadastrados);
-  return PAGINA_LISTAGEM;
- }
-
- @GetMapping("formulario")
- public String carregarPaginaCadastro(Long id, Model model) {
-  if (id != null) {
-   model.addAttribute("dados", service.carregarPorId(id));
-  } else {
-   model.addAttribute("dados", new DadosCadastroPaciente());
-  }
-  return PAGINA_CADASTRO;
- }
-
- @PostMapping
- public String processarFormulario(@Valid @ModelAttribute("dados") DadosCadastroPaciente dados,
-   BindingResult result,
-   Model model,
-   RedirectAttributes redirect) {
-  if (result.hasErrors()) {
-   model.addAttribute("dados", dados);
-   return PAGINA_CADASTRO;
+  public PacienteController(PacienteService service) {
+    this.service = service;
   }
 
-  try {
-   if (dados.id() != null) {
-    service.atualizar(dados);
-    redirect.addFlashAttribute("mensagemSucesso", "Paciente atualizado com sucesso!");
-   } else {
-    service.cadastrar(dados);
-    redirect.addFlashAttribute("mensagemSucesso", "Paciente cadastrado com sucesso!");
-   }
-   return REDIRECT_LISTAGEM;
-  } catch (RegraDeNegocioException e) {
-   model.addAttribute("erro", e.getMessage());
-   model.addAttribute("dados", dados);
-   return PAGINA_CADASTRO;
+  @GetMapping
+  public String carregarPaginaListagem(@PageableDefault Pageable paginacao, Model model) {
+    var pacientesCadastrados = service.listar(paginacao);
+    model.addAttribute("pacientes", pacientesCadastrados);
+    return PAGINA_LISTAGEM;
   }
- }
 
- @DeleteMapping
- public String excluir(Long id, RedirectAttributes redirect) {
-  try {
-   service.excluir(id);
-   redirect.addFlashAttribute("mensagemSucesso", "Paciente excluído com sucesso!");
-  } catch (RegraDeNegocioException e) {
-   redirect.addFlashAttribute("mensagemErro", e.getMessage());
+  @GetMapping("formulario")
+  public String carregarPaginaCadastro(Long id, Model model) {
+    if (id != null) {
+      model.addAttribute("dados", service.carregarPorId(id));
+    } else {
+      model.addAttribute("dados", new DadosCadastroPaciente());
+    }
+    return PAGINA_CADASTRO;
   }
-  return REDIRECT_LISTAGEM;
- }
 
- // ⚠️ ENDPOINT VULNERÁVEL - PARA DEMONSTRAÇÃO EDUCACIONAL
- // Este endpoint demonstra SQL Injection via procedure
- @GetMapping("buscar-vulneravel")
- @ResponseBody
- public List<DadosListagemPaciente> buscarPacientesVulneravel(@RequestParam String nome) {
-  System.out.println("🚨 AVISO: Endpoint vulnerável sendo usado para demonstração educacional!");
-  System.out.println("📝 Parâmetro recebido: " + nome);
-  System.out.println("⚠️  Para demonstrar SQL Injection, tente: \"; DROP TABLE pacientes; --");
+  @PostMapping
+  public String processarFormulario(@Valid @ModelAttribute("dados") DadosCadastroPaciente dados,
+      BindingResult result,
+      Model model,
+      RedirectAttributes redirect) {
+    if (result.hasErrors()) {
+      model.addAttribute("dados", dados);
+      return PAGINA_CADASTRO;
+    }
 
-  return service.buscarPorNomeVulneravel(nome);
- }
+    try {
+      if (dados.id() != null) {
+        service.atualizar(dados);
+        redirect.addFlashAttribute("mensagemSucesso", "Paciente atualizado com sucesso!");
+      } else {
+        service.cadastrar(dados);
+        redirect.addFlashAttribute("mensagemSucesso", "Paciente cadastrado com sucesso!");
+      }
+      return REDIRECT_LISTAGEM;
+    } catch (RegraDeNegocioException e) {
+      model.addAttribute("erro", e.getMessage());
+      model.addAttribute("dados", dados);
+      return PAGINA_CADASTRO;
+    }
+  }
 
- // ✅ ENDPOINT SEGURO - Para comparação
- @GetMapping("buscar-seguro")
- @ResponseBody
- public List<DadosListagemPaciente> buscarPacientesSeguro(@RequestParam String nome) {
-  return service.buscarPorNomeSeguro(nome);
- }
+  @DeleteMapping
+  public String excluir(Long id, RedirectAttributes redirect) {
+    try {
+      service.excluir(id);
+      redirect.addFlashAttribute("mensagemSucesso", "Paciente excluído com sucesso!");
+    } catch (RegraDeNegocioException e) {
+      redirect.addFlashAttribute("mensagemErro", e.getMessage());
+    }
+    return REDIRECT_LISTAGEM;
+  }
 
- // Endpoint para buscar por plano de saúde
- @GetMapping("plano/{planoSaude}")
- @ResponseBody
- public List<DadosListagemPaciente> listarPacientesPorPlano(@PathVariable String planoSaude) {
-  return service.buscarPorPlanoSaude(planoSaude);
- }
+  // ⚠️ ENDPOINT VULNERÁVEL - PARA DEMONSTRAÇÃO EDUCACIONAL
+  // Este endpoint demonstra SQL Injection via procedure
+  @GetMapping("buscar")
+  @ResponseBody
+  public List<DadosListagemPaciente> buscarPacientesVulneravel(@RequestParam String nome) {
+    System.out.println("🚨 AVISO: Endpoint vulnerável sendo usado para demonstração educacional!");
+    System.out.println("📝 Parâmetro recebido: " + nome);
+    System.out.println("⚠️  Para demonstrar SQL Injection, tente: \"; DROP TABLE pacientes; --");
+
+    return service.buscarPorNome(nome);
+  }
+
+  // Endpoint para buscar por plano de saúde
+  @GetMapping("plano/{planoSaude}")
+  @ResponseBody
+  public List<DadosListagemPaciente> listarPacientesPorPlano(@PathVariable String planoSaude) {
+    return service.buscarPorPlanoSaude(planoSaude);
+  }
 }
