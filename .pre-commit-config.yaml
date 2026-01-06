@@ -8,13 +8,25 @@ repos:
       - id: check-added-large-files # Impede commit de arquivos grandes (>500kB)
 
   - repo: git@ssh.dev.azure.com:v3/gabrielvieira4102/precommit-hook-custom/precommit-hook-custom
-    rev: b29e74abff13ea18d4fa8686415745e55aa60bc3
+    rev: f10f7fd0db175b95fc906f224332429d74bbe3a1
     hooks:
-      - id: snyk-security-sca-scan
-        name: Snyk Security SCA Scan
-        description: Multi-language dependency vulnerability scanning with Snyk
-        entry: pre-commit-scripts/snyk-scan.bat # Relative path to the script
-        language: script # Use 'script' language type
+      # 🔍 Security Scanners - Code Analysis
+      - id: gitleaks-local # Detect secrets/credentials
+      - id: semgrep-sast # Static application security testing
+      - id: bandit-python-sast # Python security linter
+
+      # 📦 Dependency Security Scanners
+      - id: secure-dependencies # Snyk dependency scanning
+      - id: owasp-dependency-check # OWASP dependency vulnerability check
+      - id: syft-sbom-scan # SBOM generation and dependency analysis
+      - id: grype-vulnerability-scan # Vulnerability scanning using SBOM
+
+      # 📊 Security Reports & Summaries
+      - id: vulnerability-summary # Executive summary (text-based)
+        always_run: true
+        verbose: true
+      - id: vulnerability-summary-ai # AI-powered detailed report
+        always_run: true
 
   - repo: local
     hooks:
