@@ -36,9 +36,9 @@ public class ConsultaService {
     public void cadastrar(DadosAgendamentoConsulta dados) {
         var medicoConsulta = medicoRepository.findById(dados.idMedico()).orElseThrow();
 
-        // Buscar paciente pelo CPF informado
-        var pacienteEncontrado = pacienteRepository.findByCpfAndAtivoTrue(dados.paciente())
-                .orElseThrow(() -> new RegraDeNegocioException("Paciente não encontrado com CPF: " + dados.paciente()));
+        // Buscar paciente pelo ID informado
+        var pacienteEncontrado = pacienteRepository.findById(dados.pacienteId())
+                .orElseThrow(() -> new RegraDeNegocioException("Paciente não encontrado"));
 
         if (dados.id() == null) {
             repository.save(new Consulta(medicoConsulta, pacienteEncontrado, dados));
@@ -54,8 +54,7 @@ public class ConsultaService {
         return new DadosAgendamentoConsulta(
                 consulta.getId(),
                 consulta.getMedico().getId(),
-                consulta.getPacienteRef() != null ? consulta.getPacienteRef().getCpf() : "", // Retorna CPF ou vazio se
-                                                                                             // paciente não vinculado
+                consulta.getPacienteRef() != null ? consulta.getPacienteRef().getId() : null,
                 consulta.getData(),
                 medicoConsulta.getEspecialidade());
     }

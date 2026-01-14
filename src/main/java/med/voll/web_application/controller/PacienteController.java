@@ -94,9 +94,20 @@ public class PacienteController {
   }
 
   @GetMapping("buscar")
+  @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO', 'PACIENTE')") // Permitir busca para agendamento
   @ResponseBody
   public List<DadosListagemPaciente> buscarPacientesVulneravel(@RequestParam String nome) {
     return service.buscarPorNome(nome);
+  }
+
+  // Endpoint para buscar paciente por ID (usado no carregamento do formulário)
+  @GetMapping("{id}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO', 'PACIENTE')")
+  @ResponseBody
+  public DadosListagemPaciente buscarPorId(@PathVariable Long id) {
+    var dados = service.carregarPorId(id);
+    return new DadosListagemPaciente(dados.id(), dados.nome(), dados.email(), dados.telefone(),
+        dados.cpf(), dados.dataNascimento(), dados.planoSaude(), true);
   }
 
   // Endpoint para buscar por plano de saúde

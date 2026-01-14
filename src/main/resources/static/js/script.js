@@ -324,6 +324,120 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("=== EVENT LISTENERS DE BUSCA DE MÉDICOS ADICIONADOS ===");
   }
 
+  // Busca de pacientes no formulário de consulta - seguindo padrão do projeto
+  const searchPacienteInput = document.getElementById("searchPaciente");
+  const btnBuscarPaciente = document.getElementById("btnBuscarPaciente");
+  const pacienteResultsDiv = document.getElementById("paciente-results");
+  const pacienteListDiv = document.getElementById("paciente-list");
+  const pacienteIdInput = document.getElementById("pacienteId");
+  const selectedPacienteDiv = document.getElementById("selected-paciente");
+  const selectedPacienteNome = document.getElementById(
+    "selected-paciente-nome"
+  );
+  const btnLimparPaciente = document.getElementById("btnLimparPaciente");
+
+  if (searchPacienteInput && btnBuscarPaciente && pacienteIdInput) {
+    console.log(
+      "=== BUSCA DE PACIENTE NO FORMULÁRIO DE CONSULTA ENCONTRADA ==="
+    );
+
+    // Se já tem paciente selecionado (edição), carregar nome
+    if (pacienteIdInput.value) {
+      carregarPacienteSelecionadoConsulta(pacienteIdInput.value);
+    }
+
+    function buscarPacientesConsulta() {
+      const nome = searchPacienteInput.value.trim();
+      console.log("=== BUSCA DE PACIENTE PARA CONSULTA ===");
+      console.log("Nome:", nome);
+
+      if (!nome) {
+        alert("Digite um nome para buscar");
+        return;
+      }
+
+      const url = `/pacientes/buscar?nome=${encodeURIComponent(nome)}`;
+      console.log("URL:", url);
+
+      fetch(url)
+        .then((response) => response.json())
+        .then((pacientes) => {
+          console.log("Pacientes encontrados:", pacientes.length);
+
+          if (pacientes.length === 0) {
+            pacienteListDiv.innerHTML =
+              '<div style="padding: 15px; text-align: center; color: #666;">Nenhum paciente encontrado</div>';
+          } else {
+            pacienteListDiv.innerHTML = pacientes
+              .map(
+                (p) => `
+                            <div class="paciente-item" data-id="${p.id}" data-nome="${p.nome}" 
+                                 style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s;"
+                                 onmouseover="this.style.background='#f8f9fa'" 
+                                 onmouseout="this.style.background='white'">
+                                <strong>${p.nome}</strong><br>
+                                <small style="color: #666;">CPF: ${p.cpfFormatado} | Email: ${p.email}</small>
+                            </div>
+                        `
+              )
+              .join("");
+
+            // Adicionar event listeners
+            document.querySelectorAll(".paciente-item").forEach((item) => {
+              item.addEventListener("click", function () {
+                const id = this.dataset.id;
+                const nome = this.dataset.nome;
+                selecionarPacienteConsulta(id, nome);
+              });
+            });
+          }
+          pacienteResultsDiv.style.display = "block";
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar pacientes:", error);
+          alert("Erro ao buscar pacientes. Tente novamente.");
+        });
+    }
+
+    function selecionarPacienteConsulta(id, nome) {
+      console.log("Paciente selecionado:", id, nome);
+      pacienteIdInput.value = id;
+      selectedPacienteNome.textContent = nome;
+      selectedPacienteDiv.style.display = "block";
+      pacienteResultsDiv.style.display = "none";
+      searchPacienteInput.value = "";
+    }
+
+    function carregarPacienteSelecionadoConsulta(id) {
+      fetch(`/pacientes/${id}`)
+        .then((response) => response.json())
+        .then((paciente) => {
+          selectedPacienteNome.textContent = paciente.nome;
+          selectedPacienteDiv.style.display = "block";
+        })
+        .catch((error) => console.error("Erro ao carregar paciente:", error));
+    }
+
+    btnBuscarPaciente.addEventListener("click", buscarPacientesConsulta);
+    searchPacienteInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        buscarPacientesConsulta();
+      }
+    });
+
+    if (btnLimparPaciente) {
+      btnLimparPaciente.addEventListener("click", function () {
+        pacienteIdInput.value = "";
+        selectedPacienteDiv.style.display = "none";
+        searchPacienteInput.value = "";
+        pacienteResultsDiv.style.display = "none";
+      });
+    }
+
+    console.log("=== BUSCA DE PACIENTE NO FORMULÁRIO CONFIGURADA ===");
+  }
+
   // Debug do formulário de usuários
   const formUsuario = document.querySelector('form[action*="usuarios"]');
   if (formUsuario) {

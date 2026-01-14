@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="pt-br"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{template.html}">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{template.html}">
+
 <head>
     <title>Agendamento de Consultas</title>
 </head>
@@ -27,9 +26,12 @@
                             <label for="especialidade">Especialidade</label>
                             <select id="especialidade" name="especialidade" required th:field="*{especialidade}">
                                 <option th:value="${null}">Selecione uma especialidade</option>
-                                <option th:each="especialidade : ${especialidades}" th:value="${especialidade}" th:text="${especialidade}" th:selected="${dados.especialidade == especialidade}"></option>
+                                <option th:each="especialidade : ${especialidades}" th:value="${especialidade}"
+                                    th:text="${especialidade}" th:selected="${dados.especialidade == especialidade}">
+                                </option>
                             </select>
-                            <div class="modern-alert error" th:if="${#fields.hasErrors('especialidade')}" th:errors="*{especialidade}">❌</div>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('especialidade')}"
+                                th:errors="*{especialidade}">❌</div>
                         </div>
 
                         <div class="modern-form-group">
@@ -37,29 +39,61 @@
                             <select id="idMedico" name="idMedico" required th:field="*{idMedico}">
                                 <option th:value="${null}">Selecione um médico</option>
                             </select>
-                            <div class="modern-alert error" th:if="${#fields.hasErrors('idMedico')}" th:errors="*{idMedico}">❌</div>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('idMedico')}"
+                                th:errors="*{idMedico}">❌</div>
                         </div>
 
                         <div class="modern-form-group">
-                            <label for="cpf">CPF do Paciente</label>
-                            <input type="text" id="cpf" placeholder="000.000.000-00" required th:field="*{paciente}">
-                            <div class="modern-alert error" th:if="${#fields.hasErrors('paciente')}" th:errors="*{paciente}">❌</div>
+                            <label for="searchPaciente">Buscar Paciente</label>
+                            <div style="display: flex; gap: 10px; align-items: start;">
+                                <input type="text" id="searchPaciente" placeholder="Digite o nome do paciente..."
+                                    style="flex: 1;">
+                                <button type="button" id="btnBuscarPaciente" class="modern-btn modern-btn-primary"
+                                    style="white-space: nowrap;">
+                                    🔍 Buscar
+                                </button>
+                            </div>
+
+                            <!-- Resultados da busca -->
+                            <div id="paciente-results"
+                                style="display:none; margin-top: 10px; max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
+                                <div id="paciente-list"></div>
+                            </div>
+
+                            <!-- Campo hidden com ID do paciente selecionado -->
+                            <input type="hidden" id="pacienteId" name="pacienteId" th:field="*{pacienteId}" required>
+
+                            <!-- Paciente selecionado -->
+                            <div id="selected-paciente"
+                                style="display:none; margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #007bff;">
+                                <strong>Paciente selecionado:</strong> <span id="selected-paciente-nome"></span>
+                                <button type="button" id="btnLimparPaciente"
+                                    style="margin-left: 10px; color: #dc3545; background: none; border: none; cursor: pointer;">✖
+                                    Remover</button>
+                            </div>
+
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('pacienteId')}"
+                                th:errors="*{pacienteId}">❌</div>
                         </div>
 
                         <div class="modern-form-group">
                             <label for="data">Data e Horário</label>
                             <input type="datetime-local" id="data" required th:field="*{data}">
-                            <div class="modern-alert error" th:if="${#fields.hasErrors('data')}" th:errors="*{data}">❌</div>
+                            <div class="modern-alert error" th:if="${#fields.hasErrors('data')}" th:errors="*{data}">❌
+                            </div>
                         </div>
 
                         <div class="modern-buttons">
                             <button type="submit" class="modern-btn modern-btn-primary">
-                                <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
+                                <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar"
+                                    class="btn-icon">
                                 Agendar Consulta
                             </button>
 
-                            <a href="listagem-consultas.html" th:href="@{/consultas}" class="modern-btn modern-btn-secondary">
-                                <img src="/static/assets/back.png" th:src="@{/assets/back.png}" alt="Voltar" class="btn-icon">
+                            <a href="listagem-consultas.html" th:href="@{/consultas}"
+                                class="modern-btn modern-btn-secondary">
+                                <img src="/static/assets/back.png" th:src="@{/assets/back.png}" alt="Voltar"
+                                    class="btn-icon">
                                 Voltar
                             </a>
                         </div>
@@ -69,4 +103,5 @@
         </div>
     </div>
 </body>
+
 </html>
