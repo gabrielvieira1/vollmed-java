@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+ layout:decorate="~{template.html}">
+
+<head>
+ <title>Cadastro de Grupo</title>
+</head>
+
+<body>
+ <div layout:fragment="conteudo">
+  <div class="main-container">
+   <div class="page-header">
+    <div class="container">
+     <h1 class="page-title" th:text="${dados.id != null} ? 'Editar Grupo' : 'Novo Grupo'"></h1>
+    </div>
+   </div>
+
+   <main class="container">
+    <section class="modern-card">
+     <!-- Mensagem de Erro -->
+     <div class="modern-alert" style="background: #f8d7da; color: #721c24; margin-bottom: 20px;" th:if="${erro}">
+      ❌ <span th:text="${erro}"></span>
+     </div>
+
+     <form method="post" th:action="@{/grupos}" th:object="${dados}">
+      <input type="hidden" th:field="*{id}">
+
+      <!-- Informações Básicas -->
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+       <h3 style="margin-bottom: 20px; color: #333;">📋 Informações do Grupo</h3>
+
+       <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div class="modern-form-group" style="margin-bottom: 0;">
+         <label for="nome">Nome do Grupo *</label>
+         <input type="text" id="nome" th:field="*{nome}" required placeholder="Ex: Enfermeiros">
+         <small class="form-error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></small>
+        </div>
+
+        <div class="modern-form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
+         <label
+          style="display: flex; align-items: center; cursor: pointer; margin: 0; padding: 10px 15px; background: white; border: 2px solid #dee2e6; border-radius: 8px; width: 100%; justify-content: center; transition: all 0.3s;"
+          onmouseover="this.style.borderColor='#007bff'; this.style.background='#f0f8ff';"
+          onmouseout="this.style.borderColor='#dee2e6'; this.style.background='white';">
+          <input type="checkbox" th:field="*{ativo}"
+           style="margin-right: 8px; width: 18px; height: 18px; cursor: pointer;">
+          <span style="font-weight: 500; color: #333;">✓ Grupo Ativo</span>
+         </label>
+        </div>
+       </div>
+
+       <div class="modern-form-group" style="margin-bottom: 0;">
+        <label for="descricao">Descrição</label>
+        <textarea id="descricao" th:field="*{descricao}" rows="4"
+         placeholder="Descreva o propósito deste grupo e suas responsabilidades..."
+         style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; transition: border-color 0.3s;"></textarea>
+       </div>
+      </div>
+
+      <!-- Seleção de Permissões -->
+      <div style="background: #fff; padding: 20px; border: 2px solid #e9ecef; border-radius: 8px;">
+       <h3 style="margin-bottom: 20px; color: #333;">🔐 Permissões do Grupo</h3>
+
+       <small class="form-error" th:if="${#fields.hasErrors('permissoesIds')}" th:errors="*{permissoesIds}"
+        style="display: block; margin-bottom: 15px;"></small>
+
+       <!-- Agrupar permissões por recurso -->
+       <div th:each="recurso : ${recursos}">
+        <div
+         style="background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+         <h4 style="margin: 0 0 15px 0; color: #333;">
+          <span th:text="${recurso.icone}"></span>
+          <span th:text="${recurso.descricao}"></span>
+         </h4>
+
+         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+          <div th:each="permissao : ${permissoes}" th:if="${permissao.recurso.id == recurso.id}"
+           style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #dee2e6;">
+           <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+            <input type="checkbox" th:field="*{permissoesIds}" th:value="${permissao.id}" style="margin-right: 8px;">
+            <span style="font-size: 14px;">
+             <strong th:text="${permissao.acao}"></strong>
+             <br>
+             <small style="color: #666;" th:text="${permissao.descricao}"></small>
+            </span>
+           </label>
+          </div>
+         </div>
+
+         <!-- Botões de seleção rápida por recurso -->
+         <div style="margin-top: 10px; text-align: right;">
+          <button type="button" class="btn-select-all" th:data-recurso="${recurso.id}"
+           style="font-size: 12px; padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">
+           ✓ Marcar Todas
+          </button>
+          <button type="button" class="btn-deselect-all" th:data-recurso="${recurso.id}"
+           style="font-size: 12px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+           ✗ Desmarcar Todas
+          </button>
+         </div>
+        </div>
+       </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="modern-form-actions" style="margin-top: 30px;">
+       <a th:href="@{/grupos}" class="modern-btn modern-btn-secondary">Cancelar</a>
+       <button type="submit" class="modern-btn modern-btn-success">
+        <span th:text="${dados.id != null} ? 'Atualizar Grupo' : 'Cadastrar Grupo'"></span>
+       </button>
+      </div>
+     </form>
+    </section>
+   </main>
+  </div>
+
+  <script th:inline="javascript">
+   // Script para selecionar/desselecionar todas as permissões de um recurso
+   document.querySelectorAll('.btn-select-all').forEach(btn => {
+    btn.addEventListener('click', function () {
+     const recursoId = this.getAttribute('data-recurso');
+     const container = this.closest('div[style*="border-left"]');
+     container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.checked = true;
+     });
+    });
+   });
+
+   document.querySelectorAll('.btn-deselect-all').forEach(btn => {
+    btn.addEventListener('click', function () {
+     const recursoId = this.getAttribute('data-recurso');
+     const container = this.closest('div[style*="border-left"]');
+     container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.checked = false;
+     });
+    });
+   });
+  </script>
+ </div>
+</body>
+
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+ layout:decorate="~{template.html}">
+
+<head>
+ <title>Gestão de Grupos e Permissões</title>
+</head>
+
+<body>
+ <div layout:fragment="conteudo">
+  <div class="main-container">
+   <div class="page-header">
+    <div class="container">
+     <h1 class="page-title">Gestão de Grupos e Permissões</h1>
+     <p style="color: #666; margin-top: 10px;">Controle completo de permissões e acessos do sistema</p>
+    </div>
+   </div>
+
+   <main class="container">
+    <!-- Mensagens de Sucesso/Erro -->
+    <div class="modern-alert" style="background: #d4edda; color: #155724; margin-bottom: 20px;"
+     th:if="${mensagemSucesso}">
+     ✅ <span th:text="${mensagemSucesso}"></span>
+    </div>
+    <div class="modern-alert" style="background: #f8d7da; color: #721c24; margin-bottom: 20px;" th:if="${mensagemErro}">
+     ❌ <span th:text="${mensagemErro}"></span>
+    </div>
+
+    <section class="modern-card">
+     <div class="table-header">
+      <h2 class="table-title">Grupos de Acesso</h2>
+      <a href="formulario-grupo.html" th:href="@{/grupos/formulario}" class="modern-btn modern-btn-success">
+       <img src="/static/assets/plus.png" th:src="@{/assets/plus.png}" alt="Ícone de adicionar" class="btn-icon">
+       Novo Grupo
+      </a>
+     </div>
+
+     <table class="modern-table" th:if="${!grupos.empty}">
+      <thead>
+       <tr>
+        <th>Nome do Grupo</th>
+        <th>Descrição</th>
+        <th>Tipo</th>
+        <th>Permissões</th>
+        <th>Usuários</th>
+        <th>Status</th>
+        <th>Ações</th>
+       </tr>
+      </thead>
+
+      <tbody>
+       <tr th:each="grupo: ${grupos.content}">
+        <td>
+         <strong th:text="${grupo.nome}"></strong>
+        </td>
+        <td th:text="${grupo.descricao}"></td>
+        <td>
+         <span class="badge badge-info" th:if="${grupo.padrao}">🔒 Sistema</span>
+         <span class="badge badge-secondary" th:unless="${grupo.padrao}">👤 Customizado</span>
+        </td>
+        <td style="text-align: center;">
+         <span class="badge badge-primary" th:text="${grupo.quantidadePermissoes}"></span>
+        </td>
+        <td style="text-align: center;">
+         <span class="badge badge-success" th:text="${grupo.quantidadeUsuarios}"></span>
+        </td>
+        <td>
+         <span class="badge" th:classappend="${grupo.ativo} ? 'badge-success' : 'badge-secondary'"
+          th:text="${grupo.ativo} ? 'Ativo' : 'Inativo'"></span>
+        </td>
+        <td>
+         <div class="action-buttons">
+          <a href="#" class="action-btn edit" th:href="@{/grupos/formulario?id={id}(id=${grupo.id})}" title="Editar"
+           th:if="${!grupo.padrao}">
+           <img src="/static/assets/edit.svg" th:src="@{/assets/edit.svg}" alt="Editar">
+          </a>
+          <a href="#" class="action-btn edit" th:href="@{/grupos/formulario?id={id}(id=${grupo.id})}" title="Visualizar"
+           th:if="${grupo.padrao}">
+           👁️
+          </a>
+          <a href="#deleteModal" class="action-btn delete" data-toggle="modal" th:data-id="${grupo.id}"
+           data-url="/grupos" title="Excluir" th:if="${!grupo.padrao}">
+           <img src="/static/assets/delete.svg" th:src="@{/assets/delete.svg}" alt="Excluir">
+          </a>
+         </div>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+
+     <div class="empty-state" th:if="${grupos.empty}">
+      <div class="empty-state-icon">👥</div>
+      <p class="empty-state-text">Nenhum grupo cadastrado</p>
+      <a href="formulario-grupo.html" th:href="@{/grupos/formulario}" class="modern-btn modern-btn-primary">
+       Criar Primeiro Grupo
+      </a>
+     </div>
+
+     <div th:replace="~{componentes/_paginacao.html :: paginacao(url = 'grupos', registros = ${grupos})}">
+     </div>
+    </section>
+
+    <!-- Card Informativo -->
+    <div class="modern-card" style="margin-top: 20px; background: #e7f3ff; border-left: 4px solid #007bff;">
+     <h3 style="color: #333; margin-bottom: 15px;">ℹ️ Como funciona?</h3>
+     <ul style="color: #666; line-height: 1.8;">
+      <li><strong>Grupos Padrão:</strong> São grupos criados pelo sistema e não podem ser excluídos (mas podem ter
+       permissões alteradas)</li>
+      <li><strong>Grupos Customizados:</strong> Criados por você para necessidades específicas</li>
+      <li><strong>Permissões:</strong> Definem quais ações cada grupo pode realizar no sistema</li>
+      <li><strong>Usuários:</strong> Um usuário pode pertencer a múltiplos grupos e terá todas as permissões somadas
+      </li>
+     </ul>
+    </div>
+   </main>
+  </div>
+
+  <div th:replace="~{componentes/_modal_excluir.html :: modal}"></div>
+ </div>
+</body>
+
+</html>

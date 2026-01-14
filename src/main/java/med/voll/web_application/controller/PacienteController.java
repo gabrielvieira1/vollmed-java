@@ -25,8 +25,8 @@ import med.voll.web_application.domain.paciente.DadosListagemPaciente;
 import med.voll.web_application.domain.paciente.PacienteService;
 
 @Controller
-@RequestMapping("pacientes")
 @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas ADMIN e MEDICO podem acessar
+@RequestMapping("pacientes")
 public class PacienteController {
 
   private static final String PAGINA_LISTAGEM = "paciente/listagem-pacientes";

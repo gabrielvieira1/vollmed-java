@@ -1,9 +1,16 @@
 package med.voll.web_application.domain.consulta;
 
-import jakarta.persistence.*;
-import med.voll.web_application.domain.medico.Medico;
-
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import med.voll.web_application.domain.medico.Medico;
 
 @Entity
 @Table(name = "consultas")
@@ -12,7 +19,10 @@ public class Consulta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String paciente;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paciente_id")
+    private med.voll.web_application.domain.paciente.Paciente pacienteRef;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Medico medico;
@@ -20,24 +30,23 @@ public class Consulta {
     private LocalDateTime data;
 
     @Deprecated
-    public Consulta(){}
-
-    public Consulta(Medico medico, DadosAgendamentoConsulta dados) {
-        modificarDados(medico, dados);
+    public Consulta() {
     }
 
-    public void modificarDados(Medico medico, DadosAgendamentoConsulta dados) {
+    public Consulta(Medico medico, med.voll.web_application.domain.paciente.Paciente paciente,
+            DadosAgendamentoConsulta dados) {
+        modificarDados(medico, paciente, dados);
+    }
+
+    public void modificarDados(Medico medico, med.voll.web_application.domain.paciente.Paciente paciente,
+            DadosAgendamentoConsulta dados) {
         this.medico = medico;
-        this.paciente = dados.paciente();
+        this.pacienteRef = paciente;
         this.data = dados.data();
     }
 
     public Long getId() {
         return id;
-    }
-
-    public String getPaciente() {
-        return paciente;
     }
 
     public Medico getMedico() {
@@ -46,6 +55,10 @@ public class Consulta {
 
     public LocalDateTime getData() {
         return data;
+    }
+
+    public med.voll.web_application.domain.paciente.Paciente getPacienteRef() {
+        return pacienteRef;
     }
 
 }

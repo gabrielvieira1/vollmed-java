@@ -7,21 +7,52 @@
 
         <nav class="main-nav" sec:authorize="isAuthenticated()">
             <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="../medico/listagem-medicos.html" th:href="@{/medicos}" class="nav-link">Médicos</a>
+                <!-- Médicos: apenas ADMIN e MEDICO -->
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MEDICO')">
+                    <a href="../medico/listagem-medicos.html" th:href="@{/medicos}" class="nav-link">
+                        <span>👨‍⚕️</span>
+                        <span>Médicos</span>
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <a href="../consulta/listagem-consultas.html" th:href="@{/consultas}" class="nav-link">Consultas</a>
+
+                <!-- Consultas: ADMIN, MEDICO e PACIENTE -->
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MEDICO', 'PACIENTE')">
+                    <a href="../consulta/listagem-consultas.html" th:href="@{/consultas}" class="nav-link">
+                        <span>📅</span>
+                        <span>Consultas</span>
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <a href="../paciente/listagem-pacientes.html" th:href="@{/pacientes}" class="nav-link">Pacientes</a>
+
+                <!-- Pacientes: apenas ADMIN e MEDICO -->
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MEDICO')">
+                    <a href="../paciente/listagem-pacientes.html" th:href="@{/pacientes}" class="nav-link">
+                        <span>🏥</span>
+                        <span>Pacientes</span>
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <a href="../relatorio/listagem-relatorios.html" th:href="@{/relatorios}"
-                        class="nav-link">Relatórios</a>
+
+                <!-- Relatórios: apenas ADMIN e MEDICO -->
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MEDICO')">
+                    <a href="../relatorio/listagem-relatorios.html" th:href="@{/relatorios}" class="nav-link">
+                        <span>📊</span>
+                        <span>Relatórios</span>
+                    </a>
                 </li>
+
+                <!-- Usuários: apenas ADMIN -->
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a href="../usuario/listagem-usuarios.html" th:href="@{/usuarios}" class="nav-link">🔐 Usuários</a>
+                    <a href="../usuario/listagem-usuarios.html" th:href="@{/usuarios}" class="nav-link">
+                        <span>🔐</span>
+                        <span>Usuários</span>
+                    </a>
+                </li>
+
+                <!-- Grupos e Permissões: apenas ADMIN -->
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a href="../grupo/listagem-grupos.html" th:href="@{/grupos}" class="nav-link">
+                        <span>👥</span>
+                        <span>Grupos</span>
+                    </a>
                 </li>
             </ul>
         </nav>

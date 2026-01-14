@@ -25,7 +25,6 @@ import med.voll.web_application.domain.medico.Especialidade;
 import med.voll.web_application.domain.medico.MedicoService;
 
 @Controller
-@PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas ADMIN e MEDICO podem acessar
 @RequestMapping("medicos")
 public class MedicoController {
 
@@ -45,6 +44,7 @@ public class MedicoController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas gestores
     public String carregarPaginaListagem(@PageableDefault Pageable paginacao, Model model) {
         var medicosCadastrados = service.listar(paginacao);
         model.addAttribute("medicos", medicosCadastrados);
@@ -52,6 +52,7 @@ public class MedicoController {
     }
 
     @GetMapping("formulario")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas gestores
     public String carregarPaginaCadastro(Long id, Model model) {
         if (id != null) {
             model.addAttribute("dados", service.carregarPorId(id));
@@ -63,6 +64,7 @@ public class MedicoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas gestores
     public String cadastrar(@Valid @ModelAttribute("dados") DadosCadastroMedico dados, BindingResult result,
             Model model) {
         if (result.hasErrors()) {
@@ -81,12 +83,15 @@ public class MedicoController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas gestores
     public String excluir(Long id) {
         service.excluir(id);
         return REDIRECT_LISTAGEM;
     }
 
+    // Endpoint público para pacientes listarem médicos disponíveis
     @GetMapping("{especialidade}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO', 'PACIENTE')") // ✅ Pacientes PODEM listar
     @ResponseBody
     public List<DadosListagemMedico> listarMedicosPorEspecialidade(@PathVariable String especialidade) {
         return service.listarPorEspecialidade(Especialidade.valueOf(especialidade));
@@ -95,6 +100,7 @@ public class MedicoController {
     // ⚠️ ENDPOINT VULNERÁVEL - PARA DEMONSTRAÇÃO EDUCACIONAL
     // Este endpoint demonstra SQL Injection via concatenação de strings
     @GetMapping("buscar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas gestores
     @ResponseBody
     public List<DadosListagemMedico> buscarMedicosPorNome(@RequestParam String nome) {
         return service.buscarPorNome(nome);

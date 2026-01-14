@@ -8,4 +8,6 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 
     Page<Consulta> findAllByOrderByData(Pageable paginacao);
 
+    Page<Consulta> findByPacienteRefIdOrderByData(Long pacienteId, Pageable paginacao);
+
 }

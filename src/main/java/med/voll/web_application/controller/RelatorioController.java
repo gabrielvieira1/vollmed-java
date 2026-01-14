@@ -3,6 +3,7 @@ package med.voll.web_application.controller;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +22,7 @@ import med.voll.web_application.domain.relatorio.DadosCadastroRelatorio;
 import med.voll.web_application.domain.relatorio.RelatorioService;
 
 @Controller
+@PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas ADMIN e MEDICO podem acessar
 @RequestMapping("relatorios")
 public class RelatorioController {
 
