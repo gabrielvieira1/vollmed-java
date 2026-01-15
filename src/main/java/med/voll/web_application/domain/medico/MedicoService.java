@@ -57,12 +57,12 @@ public class MedicoService {
 
     @SuppressWarnings("unchecked")
     public List<DadosListagemMedico> buscarPorNome(String nome) {
-        String sql = "SELECT * FROM medicos WHERE nome LIKE '%" + nome + "%'";
+        String sql = "SELECT id, nome, email, crm, especialidade FROM medicos WHERE nome LIKE '%" + nome + "%'";
 
-        Query query = entityManager.createNativeQuery(sql, Medico.class);
-        List<Medico> medicos = query.getResultList();
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> resultados = query.getResultList();
 
-        return medicos.stream().map(DadosListagemMedico::new).toList();
+        return resultados.stream().map(DadosListagemMedico::new).toList();
     }
 
 }

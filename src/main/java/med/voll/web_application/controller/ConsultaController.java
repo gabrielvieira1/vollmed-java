@@ -63,21 +63,66 @@ public class ConsultaController {
     }
 
     @GetMapping("formulario")
-    public String carregarPaginaAgendaConsulta(Long id, Model model) {
+    public String carregarPaginaAgendaConsulta(Long id, Model model, Authentication authentication) {
         if (id != null) {
             model.addAttribute("dados", service.carregarPorId(id));
         } else {
-            model.addAttribute("dados", new DadosAgendamentoConsulta(null, null, null, null, null));
+            // Se usuário é PACIENTE, auto-preencher com seus dados
+            Long pacienteId = null;
+            if (authentication != null && authentication.getAuthorities()
+                    .contains(new SimpleGrantedAuthority("ROLE_PACIENTE"))) {
+                Usuario usuario = (Usuario) authentication.getPrincipal();
+                if (usuario.getPaciente() != null) {
+                    pacienteId = usuario.getPaciente().getId();
+                }
+            }
+            model.addAttribute("dados", new DadosAgendamentoConsulta(null, null, pacienteId, null, null));
         }
+
+        // Adicionar flag para controlar visibilidade da busca de paciente
+        boolean podeEscolherPaciente = authentication != null &&
+                (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) ||
+                        authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MEDICO")));
+        model.addAttribute("podeEscolherPaciente", podeEscolherPaciente);
 
         return PAGINA_CADASTRO;
     }
 
     @PostMapping
     public String cadastrar(@Valid @ModelAttribute("dados") DadosAgendamentoConsulta dados, BindingResult result,
-            Model model) {
+            Model model, Authentication authentication) {
+
+        boolean podeEscolherPaciente = authentication != null &&
+                (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) ||
+                        authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MEDICO")));
+
+        // Validação: se pacienteId está null e não pode escolher, é erro
+        if (dados.pacienteId() == null && !podeEscolherPaciente) {
+            model.addAttribute("erro", "Erro: Paciente não identificado");
+            model.addAttribute("dados", dados);
+            model.addAttribute("podeEscolherPaciente", podeEscolherPaciente);
+            return PAGINA_CADASTRO;
+        }
+
+        // Se ADMIN/MEDICO sem paciente selecionado
+        if (dados.pacienteId() == null && podeEscolherPaciente) {
+            model.addAttribute("erro", "Por favor, selecione um paciente");
+            model.addAttribute("dados", dados);
+            model.addAttribute("podeEscolherPaciente", podeEscolherPaciente);
+            return PAGINA_CADASTRO;
+        }
+
+        // Validação: médico é obrigatório
+        if (dados.idMedico() == null) {
+            model.addAttribute("erro", "Por favor, selecione um médico");
+            model.addAttribute("dados", dados);
+            model.addAttribute("podeEscolherPaciente", podeEscolherPaciente);
+            return PAGINA_CADASTRO;
+        }
+
         if (result.hasErrors()) {
             model.addAttribute("dados", dados);
+            model.addAttribute("podeEscolherPaciente", podeEscolherPaciente);
             return PAGINA_CADASTRO;
         }
 
@@ -87,6 +132,7 @@ public class ConsultaController {
         } catch (RegraDeNegocioException e) {
             model.addAttribute("erro", e.getMessage());
             model.addAttribute("dados", dados);
+            model.addAttribute("podeEscolherPaciente", podeEscolherPaciente);
             return PAGINA_CADASTRO;
         }
     }

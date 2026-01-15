@@ -19,12 +19,16 @@
                 <section class="modern-card">
                     <h2 class="form-title">Dados da Consulta</h2>
 
+                    <!-- Mensagem de erro geral -->
+                    <div class="modern-alert error" th:if="${erro}" th:text="${erro}" style="margin-bottom: 20px;">❌
+                    </div>
+
                     <form method="post" action="#" th:action="@{/consultas}" th:object="${dados}">
                         <input type="hidden" name="id" th:field="*{id}">
 
                         <div class="modern-form-group">
-                            <label for="especialidade">Especialidade</label>
-                            <select id="especialidade" name="especialidade" required th:field="*{especialidade}">
+                            <label for="especialidade">Especialidade (opcional)</label>
+                            <select id="especialidade" name="especialidade" th:field="*{especialidade}">
                                 <option th:value="${null}">Selecione uma especialidade</option>
                                 <option th:each="especialidade : ${especialidades}" th:value="${especialidade}"
                                     th:text="${especialidade}" th:selected="${dados.especialidade == especialidade}">
@@ -36,14 +40,43 @@
 
                         <div class="modern-form-group">
                             <label for="idMedico">Médico</label>
-                            <select id="idMedico" name="idMedico" required th:field="*{idMedico}">
-                                <option th:value="${null}">Selecione um médico</option>
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <input type="text" id="searchMedico" placeholder="Digite o nome do médico..."
+                                    style="flex: 1;">
+                                <button type="button" id="btnBuscarMedico" class="modern-btn modern-btn-primary"
+                                    style="white-space: nowrap;">
+                                    🔍 Buscar Médico
+                                </button>
+                            </div>
+
+                            <!-- Resultados da busca de médicos -->
+                            <div id="medico-results"
+                                style="display:none; margin-bottom: 10px; max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
+                                <div id="medico-list"></div>
+                            </div>
+
+                            <label style="font-size: 0.9em; color: #666; margin-bottom: 5px;">Ou escolha por
+                                especialidade:</label>
+                            <select id="idMedico" name="idMedico">
+                                <option value="">Selecione um médico</option>
                             </select>
+
+                            <!-- Médico selecionado via busca -->
+                            <div id="selected-medico"
+                                style="display:none; margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745;">
+                                <strong>Médico selecionado:</strong> <span id="selected-medico-nome"></span> - <span
+                                    id="selected-medico-espec"></span>
+                                <button type="button" id="btnLimparMedico"
+                                    style="margin-left: 10px; color: #dc3545; background: none; border: none; cursor: pointer;">✖
+                                    Remover</button>
+                            </div>
+
                             <div class="modern-alert error" th:if="${#fields.hasErrors('idMedico')}"
                                 th:errors="*{idMedico}">❌</div>
                         </div>
 
-                        <div class="modern-form-group">
+                        <!-- Busca de Paciente: apenas ADMIN e MEDICO -->
+                        <div class="modern-form-group" th:if="${podeEscolherPaciente}">
                             <label for="searchPaciente">Buscar Paciente</label>
                             <div style="display: flex; gap: 10px; align-items: start;">
                                 <input type="text" id="searchPaciente" placeholder="Digite o nome do paciente..."
@@ -61,7 +94,7 @@
                             </div>
 
                             <!-- Campo hidden com ID do paciente selecionado -->
-                            <input type="hidden" id="pacienteId" name="pacienteId" th:field="*{pacienteId}" required>
+                            <input type="hidden" id="pacienteId" name="pacienteId">
 
                             <!-- Paciente selecionado -->
                             <div id="selected-paciente"
@@ -74,6 +107,11 @@
 
                             <div class="modern-alert error" th:if="${#fields.hasErrors('pacienteId')}"
                                 th:errors="*{pacienteId}">❌</div>
+                        </div>
+
+                        <!-- Paciente auto-preenchido (quando usuário é PACIENTE) -->
+                        <div class="modern-form-group" th:unless="${podeEscolherPaciente}">
+                            <input type="hidden" id="pacienteId" name="pacienteId" th:value="${dados.pacienteId}">
                         </div>
 
                         <div class="modern-form-group">
@@ -102,6 +140,26 @@
             </main>
         </div>
     </div>
+
+    <script th:inline="javascript">
+        // Debug do formulário antes do submit
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const pacienteId = document.getElementById('pacienteId');
+            const idMedico = document.getElementById('idMedico');
+
+            console.log('=== SUBMIT DO FORMULÁRIO ===');
+            console.log('Paciente ID:', pacienteId ? pacienteId.value : 'CAMPO NÃO ENCONTRADO');
+            console.log('Médico ID:', idMedico ? idMedico.value : 'CAMPO NÃO ENCONTRADO');
+
+            if (!pacienteId || !pacienteId.value) {
+                console.error('ERRO: pacienteId está vazio!');
+            }
+
+            if (!idMedico || !idMedico.value) {
+                console.error('ERRO: idMedico está vazio!');
+            }
+        });
+    </script>
 </body>
 
 </html>

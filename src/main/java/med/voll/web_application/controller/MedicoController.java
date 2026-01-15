@@ -100,7 +100,7 @@ public class MedicoController {
     // ⚠️ ENDPOINT VULNERÁVEL - PARA DEMONSTRAÇÃO EDUCACIONAL
     // Este endpoint demonstra SQL Injection via concatenação de strings
     @GetMapping("buscar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')") // Apenas gestores
+    @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO', 'PACIENTE')") // Todos podem buscar médicos
     @ResponseBody
     public List<DadosListagemMedico> buscarMedicosPorNome(@RequestParam String nome) {
         return service.buscarPorNome(nome);

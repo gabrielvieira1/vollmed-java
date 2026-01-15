@@ -438,6 +438,107 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("=== BUSCA DE PACIENTE NO FORMULÁRIO CONFIGURADA ===");
   }
 
+  // Busca de médicos no formulário de consulta - seguindo padrão do projeto
+  const searchMedicoInput = document.getElementById("searchMedico");
+  const btnBuscarMedico = document.getElementById("btnBuscarMedico");
+  const medicoResultsDiv = document.getElementById("medico-results");
+  const medicoListDiv = document.getElementById("medico-list");
+  const medicoSelect = document.getElementById("idMedico");
+  const selectedMedicoDiv = document.getElementById("selected-medico");
+  const selectedMedicoNome = document.getElementById("selected-medico-nome");
+  const selectedMedicoEspec = document.getElementById("selected-medico-espec");
+  const btnLimparMedico = document.getElementById("btnLimparMedico");
+
+  if (searchMedicoInput && btnBuscarMedico && medicoSelect) {
+    console.log("=== BUSCA DE MÉDICO NO FORMULÁRIO DE CONSULTA ENCONTRADA ===");
+
+    function buscarMedicosConsulta() {
+      const nome = searchMedicoInput.value.trim();
+      console.log("=== BUSCA DE MÉDICO PARA CONSULTA ===");
+      console.log("Nome:", nome);
+
+      if (!nome) {
+        alert("Digite um nome para buscar");
+        return;
+      }
+
+      const url = `/medicos/buscar?nome=${encodeURIComponent(nome)}`;
+      console.log("URL:", url);
+
+      fetch(url)
+        .then((response) => response.json())
+        .then((medicos) => {
+          console.log("Médicos encontrados:", medicos.length);
+
+          if (medicos.length === 0) {
+            medicoListDiv.innerHTML =
+              '<div style="padding: 15px; text-align: center; color: #666;">Nenhum médico encontrado</div>';
+          } else {
+            medicoListDiv.innerHTML = medicos
+              .map(
+                (m) => `
+                            <div class="medico-item" data-id="${m.id}" data-nome="${m.nome}" data-espec="${m.especialidade}"
+                                 style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s;"
+                                 onmouseover="this.style.background='#f8f9fa'" 
+                                 onmouseout="this.style.background='white'">
+                                <strong>${m.nome}</strong> - <span style="color: #007bff;">${m.especialidade}</span><br>
+                                <small style="color: #666;">CRM: ${m.crm} | Email: ${m.email}</small>
+                            </div>
+                        `
+              )
+              .join("");
+
+            // Adicionar event listeners
+            document.querySelectorAll(".medico-item").forEach((item) => {
+              item.addEventListener("click", function () {
+                const id = this.dataset.id;
+                const nome = this.dataset.nome;
+                const espec = this.dataset.espec;
+                selecionarMedicoConsulta(id, nome, espec);
+              });
+            });
+          }
+          medicoResultsDiv.style.display = "block";
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar médicos:", error);
+          alert("Erro ao buscar médicos. Tente novamente.");
+        });
+    }
+
+    function selecionarMedicoConsulta(id, nome, especialidade) {
+      console.log("Médico selecionado:", id, nome, especialidade);
+
+      // Limpar options existentes e adicionar a nova
+      medicoSelect.innerHTML = `<option value="${id}" selected>${nome} - ${especialidade}</option>`;
+
+      selectedMedicoNome.textContent = nome;
+      selectedMedicoEspec.textContent = especialidade;
+      selectedMedicoDiv.style.display = "block";
+      medicoResultsDiv.style.display = "none";
+      searchMedicoInput.value = "";
+    }
+
+    btnBuscarMedico.addEventListener("click", buscarMedicosConsulta);
+    searchMedicoInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        buscarMedicosConsulta();
+      }
+    });
+
+    if (btnLimparMedico) {
+      btnLimparMedico.addEventListener("click", function () {
+        medicoSelect.value = "";
+        selectedMedicoDiv.style.display = "none";
+        searchMedicoInput.value = "";
+        medicoResultsDiv.style.display = "none";
+      });
+    }
+
+    console.log("=== BUSCA DE MÉDICO NO FORMULÁRIO CONFIGURADA ===");
+  }
+
   // Debug do formulário de usuários
   const formUsuario = document.querySelector('form[action*="usuarios"]');
   if (formUsuario) {
