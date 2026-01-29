@@ -57,7 +57,7 @@
 
                             <label style="font-size: 0.9em; color: #666; margin-bottom: 5px;">Ou escolha por
                                 especialidade:</label>
-                            <select id="idMedico" name="idMedico">
+                            <select id="idMedico" name="idMedico" th:attr="data-selected-medico=${dados.idMedico}">
                                 <option value="">Selecione um médico</option>
                             </select>
 
@@ -94,7 +94,8 @@
                             </div>
 
                             <!-- Campo hidden com ID do paciente selecionado -->
-                            <input type="hidden" id="pacienteId" name="pacienteId">
+                            <input type="hidden" id="pacienteId" name="pacienteId" th:value="${dados.pacienteId}"
+                                th:attr="data-selected-paciente=${dados.pacienteId}">
 
                             <!-- Paciente selecionado -->
                             <div id="selected-paciente"
@@ -116,7 +117,8 @@
 
                         <div class="modern-form-group">
                             <label for="data">Data e Horário</label>
-                            <input type="datetime-local" id="data" required th:field="*{data}">
+                            <input type="datetime-local" id="data" name="data" required
+                                th:value="${dados.data != null ? #temporals.format(dados.data, 'yyyy-MM-dd''T''HH:mm') : ''}">
                             <div class="modern-alert error" th:if="${#fields.hasErrors('data')}" th:errors="*{data}">❌
                             </div>
                         </div>
@@ -141,25 +143,7 @@
         </div>
     </div>
 
-    <script th:inline="javascript">
-        // Debug do formulário antes do submit
-        document.querySelector('form').addEventListener('submit', function (e) {
-            const pacienteId = document.getElementById('pacienteId');
-            const idMedico = document.getElementById('idMedico');
-
-            console.log('=== SUBMIT DO FORMULÁRIO ===');
-            console.log('Paciente ID:', pacienteId ? pacienteId.value : 'CAMPO NÃO ENCONTRADO');
-            console.log('Médico ID:', idMedico ? idMedico.value : 'CAMPO NÃO ENCONTRADO');
-
-            if (!pacienteId || !pacienteId.value) {
-                console.error('ERRO: pacienteId está vazio!');
-            }
-
-            if (!idMedico || !idMedico.value) {
-                console.error('ERRO: idMedico está vazio!');
-            }
-        });
-    </script>
+    <!-- A lógica de carregamento está em /static/js/script.js -->
 </body>
 
 </html>

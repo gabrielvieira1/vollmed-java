@@ -62,9 +62,23 @@ public class ConsultaController {
         return PAGINA_LISTAGEM;
     }
 
+    /**
+     * ⚠️ VULNERABILIDADE INTENCIONAL: IDOR (INSECURE DIRECT OBJECT REFERENCE)
+     * 
+     * PROBLEMA: Carrega consulta pelo ID sem validar se pertence ao usuário logado.
+     * PACIENTE pode acessar/editar consultas de outros pacientes.
+     * 
+     * EXPLORAÇÃO:
+     * 1. Paciente A cria consulta (ID=5)
+     * 2. Paciente B acessa: /consultas/formulario?id=5
+     * 3. Paciente B VÊ E EDITA dados do Paciente A!
+     * 
+     * CORREÇÃO NECESSÁRIA: Validar ownership antes de carregar
+     */
     @GetMapping("formulario")
     public String carregarPaginaAgendaConsulta(Long id, Model model, Authentication authentication) {
         if (id != null) {
+            // ❌ SEM VALIDAÇÃO DE OWNERSHIP - VULNERABILIDADE IDOR
             model.addAttribute("dados", service.carregarPorId(id));
         } else {
             // Se usuário é PACIENTE, auto-preencher com seus dados
@@ -88,6 +102,22 @@ public class ConsultaController {
         return PAGINA_CADASTRO;
     }
 
+    /**
+     * ⚠️ VULNERABILIDADE INTENCIONAL: PARAMETER TAMPERING
+     * 
+     * PROBLEMA: Aceita pacienteId do formulário sem validação rigorosa.
+     * PACIENTE pode manipular campo hidden via DevTools e agendar para outro
+     * paciente.
+     * 
+     * EXPLORAÇÃO:
+     * 1. Logue como PACIENTE (ID=3)
+     * 2. DevTools > Elements > <input name="pacienteId" value="3">
+     * 3. Altere para value="1"
+     * 4. Submeta formulário
+     * 5. Consulta agendada para Paciente ID=1 (vítima)!
+     * 
+     * CORREÇÃO: Sempre usar paciente do Authentication, ignorar input do form
+     */
     @PostMapping
     public String cadastrar(@Valid @ModelAttribute("dados") DadosAgendamentoConsulta dados, BindingResult result,
             Model model, Authentication authentication) {
@@ -137,6 +167,22 @@ public class ConsultaController {
         }
     }
 
+    /**
+     * ⚠️ VULNERABILIDADE INTENCIONAL: MISSING FUNCTION LEVEL ACCESS CONTROL
+     * 
+     * PROBLEMA: Método DELETE sem @PreAuthorize permite que QUALQUER usuário
+     * autenticado
+     * (incluindo PACIENTE) possa excluir consultas, mesmo de outros pacientes.
+     * 
+     * EXPLORAÇÃO:
+     * 1. Logue como PACIENTE
+     * 2. Console DevTools: fetch('/consultas?id=1', { method: 'DELETE' })
+     * 3. Consulta de OUTRO PACIENTE será excluída!
+     * 
+     * CORREÇÃO NECESSÁRIA:
+     * @PreAuthorize("hasRole('ADMIN')")
+     * + Validar ownership no service layer
+     */
     @DeleteMapping
     public String excluir(Long id) {
         service.excluir(id);

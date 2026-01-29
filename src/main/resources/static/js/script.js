@@ -332,18 +332,55 @@ document.addEventListener("DOMContentLoaded", function () {
   const pacienteIdInput = document.getElementById("pacienteId");
   const selectedPacienteDiv = document.getElementById("selected-paciente");
   const selectedPacienteNome = document.getElementById(
-    "selected-paciente-nome"
+    "selected-paciente-nome",
   );
   const btnLimparPaciente = document.getElementById("btnLimparPaciente");
 
   if (searchPacienteInput && btnBuscarPaciente && pacienteIdInput) {
     console.log(
-      "=== BUSCA DE PACIENTE NO FORMULÁRIO DE CONSULTA ENCONTRADA ==="
+      "=== BUSCA DE PACIENTE NO FORMULÁRIO DE CONSULTA ENCONTRADA ===",
     );
 
-    // Se já tem paciente selecionado (edição), carregar nome
-    if (pacienteIdInput.value) {
-      carregarPacienteSelecionadoConsulta(pacienteIdInput.value);
+    // MODO EDIÇÃO: Carregar paciente selecionado se existe data-selected-paciente
+    const pacienteIdSelecionado = pacienteIdInput.getAttribute(
+      "data-selected-paciente",
+    );
+    if (
+      pacienteIdSelecionado &&
+      pacienteIdSelecionado !== "" &&
+      pacienteIdSelecionado !== "null"
+    ) {
+      console.log(
+        "🔄 MODO EDIÇÃO - Carregando paciente ID:",
+        pacienteIdSelecionado,
+      );
+
+      // Buscar TODOS os pacientes e encontrar o selecionado
+      fetch("/pacientes/buscar?nome=")
+        .then((response) => response.json())
+        .then((pacientes) => {
+          console.log("📋 Total de pacientes recebidos:", pacientes.length);
+          const pacienteSelecionado = pacientes.find(
+            (p) => p.id == pacienteIdSelecionado,
+          );
+
+          if (pacienteSelecionado) {
+            console.log("✅ Paciente encontrado:", pacienteSelecionado);
+            selecionarPacienteConsulta(
+              pacienteSelecionado.id,
+              pacienteSelecionado.nome,
+            );
+          } else {
+            console.error(
+              "❌ Paciente ID",
+              pacienteIdSelecionado,
+              "não encontrado",
+            );
+          }
+        })
+        .catch((error) =>
+          console.error("❌ Erro ao carregar paciente:", error),
+        );
     }
 
     function buscarPacientesConsulta() {
@@ -378,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <strong>${p.nome}</strong><br>
                                 <small style="color: #666;">CPF: ${p.cpfFormatado} | Email: ${p.email}</small>
                             </div>
-                        `
+                        `,
               )
               .join("");
 
@@ -452,6 +489,47 @@ document.addEventListener("DOMContentLoaded", function () {
   if (searchMedicoInput && btnBuscarMedico && medicoSelect) {
     console.log("=== BUSCA DE MÉDICO NO FORMULÁRIO DE CONSULTA ENCONTRADA ===");
 
+    // MODO EDIÇÃO: Carregar médico selecionado se existe data-selected-medico
+    const medicoIdSelecionado = medicoSelect.getAttribute(
+      "data-selected-medico",
+    );
+    if (
+      medicoIdSelecionado &&
+      medicoIdSelecionado !== "" &&
+      medicoIdSelecionado !== "null"
+    ) {
+      console.log(
+        "🔄 MODO EDIÇÃO - Carregando médico ID:",
+        medicoIdSelecionado,
+      );
+
+      // Buscar TODOS os médicos e encontrar o selecionado
+      fetch("/medicos/buscar?nome=")
+        .then((response) => response.json())
+        .then((medicos) => {
+          console.log("📋 Total de médicos recebidos:", medicos.length);
+          const medicoSelecionado = medicos.find(
+            (m) => m.id == medicoIdSelecionado,
+          );
+
+          if (medicoSelecionado) {
+            console.log("✅ Médico encontrado:", medicoSelecionado);
+            selecionarMedicoConsulta(
+              medicoSelecionado.id,
+              medicoSelecionado.nome,
+              medicoSelecionado.especialidade,
+            );
+          } else {
+            console.error(
+              "❌ Médico ID",
+              medicoIdSelecionado,
+              "não encontrado",
+            );
+          }
+        })
+        .catch((error) => console.error("❌ Erro ao carregar médico:", error));
+    }
+
     function buscarMedicosConsulta() {
       const nome = searchMedicoInput.value.trim();
       console.log("=== BUSCA DE MÉDICO PARA CONSULTA ===");
@@ -484,7 +562,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <strong>${m.nome}</strong> - <span style="color: #007bff;">${m.especialidade}</span><br>
                                 <small style="color: #666;">CRM: ${m.crm} | Email: ${m.email}</small>
                             </div>
-                        `
+                        `,
               )
               .join("");
 
@@ -562,24 +640,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
       console.log("Validações:");
       console.log(
-        `  Nome válido? ${nome.checkValidity()} - Valor: "${nome.value}"`
+        `  Nome válido? ${nome.checkValidity()} - Valor: "${nome.value}"`,
       );
       console.log(
-        `  Email válido? ${email.checkValidity()} - Valor: "${email.value}"`
+        `  Email válido? ${email.checkValidity()} - Valor: "${email.value}"`,
       );
       console.log(
-        `  Perfil válido? ${perfil.checkValidity()} - Valor: "${perfil.value}"`
+        `  Perfil válido? ${perfil.checkValidity()} - Valor: "${perfil.value}"`,
       );
       console.log(
         `  Senha válida? ${senha.checkValidity()} - Valor: "${
           senha.value ? "[PREENCHIDA]" : "[VAZIA]"
-        }"`
+        }"`,
       );
       console.log(`  ID: ${id.value || "null (novo usuário)"}`);
 
       if (!formUsuario.checkValidity()) {
         console.log(
-          "❌ FORMULÁRIO INVÁLIDO - submit será bloqueado pelo HTML5"
+          "❌ FORMULÁRIO INVÁLIDO - submit será bloqueado pelo HTML5",
         );
         e.preventDefault();
         formUsuario.reportValidity();
