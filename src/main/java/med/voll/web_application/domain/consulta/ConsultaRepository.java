@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 
-    Page<Consulta> findAllByOrderByData(Pageable paginacao);
+    Page<Consulta> findAllByAtivoTrueOrderByData(Pageable paginacao);
 
-    Page<Consulta> findByPacienteRefIdOrderByData(Long pacienteId, Pageable paginacao);
+    Page<Consulta> findByPacienteRefIdAndAtivoTrueOrderByData(Long pacienteId, Pageable paginacao);
 
 }

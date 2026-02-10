@@ -24,11 +24,11 @@ public class ConsultaService {
     }
 
     public Page<DadosListagemConsulta> listar(Pageable paginacao) {
-        return repository.findAllByOrderByData(paginacao).map(DadosListagemConsulta::new);
+        return repository.findAllByAtivoTrueOrderByData(paginacao).map(DadosListagemConsulta::new);
     }
 
     public Page<DadosListagemConsulta> listarPorPaciente(Long pacienteId, Pageable paginacao) {
-        return repository.findByPacienteRefIdOrderByData(pacienteId, paginacao)
+        return repository.findByPacienteRefIdAndAtivoTrueOrderByData(pacienteId, paginacao)
                 .map(DadosListagemConsulta::new);
     }
 
@@ -61,7 +61,8 @@ public class ConsultaService {
 
     @Transactional
     public void excluir(Long id) {
-        repository.deleteById(id);
+        var consulta = repository.findById(id).orElseThrow();
+        consulta.inativar();
     }
 
 }

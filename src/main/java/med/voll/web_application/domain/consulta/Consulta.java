@@ -29,12 +29,15 @@ public class Consulta {
 
     private LocalDateTime data;
 
+    private Boolean ativo;
+
     @Deprecated
     public Consulta() {
     }
 
     public Consulta(Medico medico, med.voll.web_application.domain.paciente.Paciente paciente,
             DadosAgendamentoConsulta dados) {
+        this.ativo = true;
         modificarDados(medico, paciente, dados);
     }
 
@@ -59,6 +62,14 @@ public class Consulta {
 
     public med.voll.web_application.domain.paciente.Paciente getPacienteRef() {
         return pacienteRef;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void inativar() {
+        this.ativo = false;
     }
 
 }
