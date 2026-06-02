@@ -487,8 +487,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnLimparMedico = document.getElementById("btnLimparMedico");
 
   if (searchMedicoInput && btnBuscarMedico && medicoSelect) {
-    console.log("=== BUSCA DE MÉDICO NO FORMULÁRIO DE CONSULTA ENCONTRADA ===");
-
     // MODO EDIÇÃO: Carregar médico selecionado se existe data-selected-medico
     const medicoIdSelecionado = medicoSelect.getAttribute(
       "data-selected-medico",
@@ -498,33 +496,21 @@ document.addEventListener("DOMContentLoaded", function () {
       medicoIdSelecionado !== "" &&
       medicoIdSelecionado !== "null"
     ) {
-      console.log(
-        "🔄 MODO EDIÇÃO - Carregando médico ID:",
-        medicoIdSelecionado,
-      );
-
       // Buscar TODOS os médicos e encontrar o selecionado
       fetch("/medicos/buscar?nome=")
         .then((response) => response.json())
         .then((medicos) => {
-          console.log("📋 Total de médicos recebidos:", medicos.length);
           const medicoSelecionado = medicos.find(
             (m) => m.id == medicoIdSelecionado,
           );
 
           if (medicoSelecionado) {
-            console.log("✅ Médico encontrado:", medicoSelecionado);
             selecionarMedicoConsulta(
               medicoSelecionado.id,
               medicoSelecionado.nome,
               medicoSelecionado.especialidade,
             );
           } else {
-            console.error(
-              "❌ Médico ID",
-              medicoIdSelecionado,
-              "não encontrado",
-            );
           }
         })
         .catch((error) => console.error("❌ Erro ao carregar médico:", error));
@@ -532,8 +518,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function buscarMedicosConsulta() {
       const nome = searchMedicoInput.value.trim();
-      console.log("=== BUSCA DE MÉDICO PARA CONSULTA ===");
-      console.log("Nome:", nome);
 
       if (!nome) {
         alert("Digite um nome para buscar");
@@ -541,13 +525,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const url = `/medicos/buscar?nome=${encodeURIComponent(nome)}`;
-      console.log("URL:", url);
 
       fetch(url)
         .then((response) => response.json())
         .then((medicos) => {
-          console.log("Médicos encontrados:", medicos.length);
-
           if (medicos.length === 0) {
             medicoListDiv.innerHTML =
               '<div style="padding: 15px; text-align: center; color: #666;">Nenhum médico encontrado</div>';
@@ -585,8 +566,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function selecionarMedicoConsulta(id, nome, especialidade) {
-      console.log("Médico selecionado:", id, nome, especialidade);
-
       // Limpar options existentes e adicionar a nova
       medicoSelect.innerHTML = `<option value="${id}" selected>${nome} - ${especialidade}</option>`;
 
@@ -613,20 +592,13 @@ document.addEventListener("DOMContentLoaded", function () {
         medicoResultsDiv.style.display = "none";
       });
     }
-
-    console.log("=== BUSCA DE MÉDICO NO FORMULÁRIO CONFIGURADA ===");
   }
 
   // Debug do formulário de usuários
   const formUsuario = document.querySelector('form[action*="usuarios"]');
   if (formUsuario) {
-    console.log("=== FORMULÁRIO DE USUÁRIO ENCONTRADO ===");
-
     formUsuario.addEventListener("submit", function (e) {
-      console.log("\n=== FORMULÁRIO DE USUÁRIO SENDO ENVIADO ===");
-
       const formData = new FormData(formUsuario);
-      console.log("Dados do formulário:");
       for (let [key, value] of formData.entries()) {
         console.log(`  ${key}: ${value}`);
       }
@@ -663,8 +635,6 @@ document.addEventListener("DOMContentLoaded", function () {
         formUsuario.reportValidity();
         return false;
       }
-
-      console.log("✅ Formulário válido - enviando para servidor...");
     });
   }
 });

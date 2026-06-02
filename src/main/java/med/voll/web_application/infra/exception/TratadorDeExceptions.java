@@ -7,8 +7,10 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
+import med.voll.web_application.domain.consulta.ConsultaInativaException;
 import med.voll.web_application.domain.exception.RegraDeNegocioException;
 
 /**
@@ -63,6 +65,20 @@ public class TratadorDeExceptions {
         modelAndView.addObject("mensagemErro", e.getMessage());
         modelAndView.addObject("tipoErro", "Regra de Negócio");
         return modelAndView;
+    }
+
+    /**
+     * Tratamento específico para consultas inativas.
+     * Redireciona para a listagem com mensagem flash.
+     */
+    @ExceptionHandler(ConsultaInativaException.class)
+    public String tratarErroConsultaInativa(ConsultaInativaException e, HttpServletRequest request,
+            RedirectAttributes redirect) {
+        System.out.println("⚠️ Consulta inativa acessada: " + e.getMessage());
+        System.out.println("📍 Rota: " + request.getRequestURI());
+
+        redirect.addFlashAttribute("erro", e.getMessage());
+        return "redirect:/consultas";
     }
 
     /**

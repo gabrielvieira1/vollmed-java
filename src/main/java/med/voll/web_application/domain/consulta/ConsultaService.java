@@ -43,13 +43,13 @@ public class ConsultaService {
         if (dados.id() == null) {
             repository.save(new Consulta(medicoConsulta, pacienteEncontrado, dados));
         } else {
-            var consulta = repository.findById(dados.id()).orElseThrow();
+            var consulta = buscarConsultaAtivaPorId(dados.id());
             consulta.modificarDados(medicoConsulta, pacienteEncontrado, dados);
         }
     }
 
     public DadosAgendamentoConsulta carregarPorId(Long id) {
-        var consulta = repository.findById(id).orElseThrow();
+        var consulta = buscarConsultaAtivaPorId(id);
         var medicoConsulta = medicoRepository.getReferenceById(consulta.getMedico().getId());
         return new DadosAgendamentoConsulta(
                 consulta.getId(),
@@ -61,8 +61,19 @@ public class ConsultaService {
 
     @Transactional
     public void excluir(Long id) {
-        var consulta = repository.findById(id).orElseThrow();
+        var consulta = buscarConsultaAtivaPorId(id);
         consulta.inativar();
+    }
+
+    private Consulta buscarConsultaAtivaPorId(Long id) {
+        var consulta = repository.findById(id)
+                .orElseThrow(() -> new RegraDeNegocioException("Consulta não encontrada"));
+
+        if (Boolean.FALSE.equals(consulta.getAtivo())) {
+            throw new ConsultaInativaException("Esta consulta foi inativada e não pode mais ser acessada");
+        }
+
+        return consulta;
     }
 
 }

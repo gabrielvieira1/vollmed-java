@@ -19,7 +19,6 @@
                 <section class="modern-card">
                     <h2 class="form-title">Dados da Consulta</h2>
 
-                    <!-- Mensagem de erro geral -->
                     <div class="modern-alert error" th:if="${erro}" th:text="${erro}" style="margin-bottom: 20px;">❌
                     </div>
 
@@ -49,7 +48,6 @@
                                 </button>
                             </div>
 
-                            <!-- Resultados da busca de médicos -->
                             <div id="medico-results"
                                 style="display:none; margin-bottom: 10px; max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
                                 <div id="medico-list"></div>
@@ -61,7 +59,6 @@
                                 <option value="">Selecione um médico</option>
                             </select>
 
-                            <!-- Médico selecionado via busca -->
                             <div id="selected-medico"
                                 style="display:none; margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745;">
                                 <strong>Médico selecionado:</strong> <span id="selected-medico-nome"></span> - <span
@@ -75,7 +72,6 @@
                                 th:errors="*{idMedico}">❌</div>
                         </div>
 
-                        <!-- Busca de Paciente: apenas ADMIN e MEDICO -->
                         <div class="modern-form-group" th:if="${podeEscolherPaciente}">
                             <label for="searchPaciente">Buscar Paciente</label>
                             <div style="display: flex; gap: 10px; align-items: start;">
@@ -87,17 +83,14 @@
                                 </button>
                             </div>
 
-                            <!-- Resultados da busca -->
                             <div id="paciente-results"
                                 style="display:none; margin-top: 10px; max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
                                 <div id="paciente-list"></div>
                             </div>
 
-                            <!-- Campo hidden com ID do paciente selecionado -->
                             <input type="hidden" id="pacienteId" name="pacienteId" th:value="${dados.pacienteId}"
                                 th:attr="data-selected-paciente=${dados.pacienteId}">
 
-                            <!-- Paciente selecionado -->
                             <div id="selected-paciente"
                                 style="display:none; margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #007bff;">
                                 <strong>Paciente selecionado:</strong> <span id="selected-paciente-nome"></span>
@@ -110,7 +103,6 @@
                                 th:errors="*{pacienteId}">❌</div>
                         </div>
 
-                        <!-- Paciente auto-preenchido (quando usuário é PACIENTE) -->
                         <div class="modern-form-group" th:unless="${podeEscolherPaciente}">
                             <input type="hidden" id="pacienteId" name="pacienteId" th:value="${dados.pacienteId}">
                         </div>
@@ -143,7 +135,6 @@
         </div>
     </div>
 
-    <!-- A lógica de carregamento está em /static/js/script.js -->
 </body>
 
 </html>
