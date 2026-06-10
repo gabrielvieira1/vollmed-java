@@ -135,27 +135,46 @@ repos:
 - IDE de sua preferência (IntelliJ IDEA recomendado)
 
 ### 2. Configuração do Banco de Dados
-Crie um banco MySQL e configure no `application.properties`:
+Crie um banco MySQL. A configuração principal fica em
+`src/main/resources/application.properties` e utiliza variáveis de ambiente
+com valores padrão para execução local:
 
 ```properties
-# Configuração do Banco de Dados
-spring.datasource.url=jdbc:mysql://localhost:3306/vollmed_db
-spring.datasource.username=seu_usuario
-spring.datasource.password=sua_senha
+spring.application.name=web-application
 
-# JPA/Hibernate
-spring.jpa.hibernate.ddl-auto=validate
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
+server.port=${SERVER_PORT:8080}
 
-# Flyway para migrações
-spring.flyway.enabled=true
-spring.flyway.locations=classpath:db/migration
+spring.datasource.url=${DB_URL:jdbc:mysql://localhost/vollmed_web?createDatabaseIfNotExist=true}
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD:root}
 
-# Configurações de Segurança
-spring.security.user.name=admin
-spring.security.user.password=admin
+spring.mvc.hiddenmethod.filter.enabled=true
+
+spring.flyway.validate-on-migrate=true
+
+management.endpoints.web.exposure.include=health
+management.endpoint.health.show-details=never
 ```
+
+O arquivo `src/main/resources/application-dev.properties` concentra apenas as
+configurações específicas de desenvolvimento:
+
+```properties
+app.dev.seed-users=${TEST_USERS_ENABLED:true}
+app.dev.test-user-password=${TEST_USER_PASSWORD:Vollmed@2026}
+```
+
+Crie esse arquivo quando quiser habilitar o inicializador de usuários de teste.
+Ele só é carregado quando o perfil Spring `dev` está ativo. No Docker Compose,
+isso é configurado por `SPRING_PROFILES_ACTIVE=dev`. Fora do Docker, execute:
+
+```bash
+SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
+```
+
+As variáveis `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SERVER_PORT`,
+`TEST_USERS_ENABLED` e `TEST_USER_PASSWORD` podem sobrescrever os valores
+padrão sem alterar os arquivos versionados.
 
 ### 3. Executando a Aplicação
 
