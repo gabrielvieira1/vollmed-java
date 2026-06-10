@@ -19,6 +19,8 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
  // Busca paciente por CPF
  Optional<Paciente> findByCpfAndAtivoTrue(String cpf);
 
+ Optional<Paciente> findByEmailIgnoreCaseAndAtivoTrue(String email);
+
  // Verifica se já existe paciente cadastrado com CPF
  @Query("SELECT COUNT(p) > 0 FROM Paciente p WHERE p.cpf = :cpf AND (:id IS NULL OR p.id != :id)")
  boolean existePacienteComCpf(@Param("cpf") String cpf, @Param("id") Long id);

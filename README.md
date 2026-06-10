@@ -135,27 +135,46 @@ repos:
 - IDE de sua preferência (IntelliJ IDEA recomendado)
 
 ### 2. Configuração do Banco de Dados
-Crie um banco MySQL e configure no `application.properties`:
+Crie um banco MySQL. A configuração principal fica em
+`src/main/resources/application.properties` e utiliza variáveis de ambiente
+com valores padrão para execução local:
 
 ```properties
-# Configuração do Banco de Dados
-spring.datasource.url=jdbc:mysql://localhost:3306/vollmed_db
-spring.datasource.username=seu_usuario
-spring.datasource.password=sua_senha
+spring.application.name=web-application
 
-# JPA/Hibernate
-spring.jpa.hibernate.ddl-auto=validate
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
+server.port=${SERVER_PORT:8080}
 
-# Flyway para migrações
-spring.flyway.enabled=true
-spring.flyway.locations=classpath:db/migration
+spring.datasource.url=${DB_URL:jdbc:mysql://localhost/vollmed_web?createDatabaseIfNotExist=true}
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD:root}
 
-# Configurações de Segurança
-spring.security.user.name=admin
-spring.security.user.password=admin
+spring.mvc.hiddenmethod.filter.enabled=true
+
+spring.flyway.validate-on-migrate=true
+
+management.endpoints.web.exposure.include=health
+management.endpoint.health.show-details=never
 ```
+
+O arquivo `src/main/resources/application-dev.properties` concentra apenas as
+configurações específicas de desenvolvimento:
+
+```properties
+app.dev.seed-users=${TEST_USERS_ENABLED:true}
+app.dev.test-user-password=${TEST_USER_PASSWORD:Vollmed@2026}
+```
+
+Crie esse arquivo quando quiser habilitar o inicializador de usuários de teste.
+Ele só é carregado quando o perfil Spring `dev` está ativo. No Docker Compose,
+isso é configurado por `SPRING_PROFILES_ACTIVE=dev`. Fora do Docker, execute:
+
+```bash
+SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
+```
+
+As variáveis `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SERVER_PORT`,
+`TEST_USERS_ENABLED` e `TEST_USER_PASSWORD` podem sobrescrever os valores
+padrão sem alterar os arquivos versionados.
 
 ### 3. Executando a Aplicação
 
@@ -175,6 +194,81 @@ mvnw.cmd spring-boot:run
 - **URL**: http://localhost:8080
 - **Página inicial**: Interface moderna com botões de Login/Registro
 - **Primeiro acesso**: Crie uma conta através do botão "Criar Conta"
+
+## 🐳 Executando com Docker
+
+O Docker Compose inicia a aplicação e um MySQL 8 isolado do banco instalado no
+computador. Os dados do banco ficam armazenados em um volume Docker persistente.
+
+### Pré-requisitos
+
+- Docker
+- Docker Compose
+
+### Iniciar o ambiente
+
+```bash
+docker compose up --build
+```
+
+Se o Docker estiver instalado sem o plugin `buildx`, use o builder legado:
+
+```bash
+COMPOSE_BAKE=false DOCKER_BUILDKIT=0 docker compose up --build
+```
+
+Depois que os health checks estiverem concluídos:
+
+- **Aplicação**: http://localhost:8080
+- **Health check**: http://localhost:8080/actuator/health
+- **MySQL no host**: `localhost:3307`
+- **Banco**: `vollmed_web`
+- **Usuário padrão**: `vollmed`
+- **Senha padrão**: `vollmed_local`
+
+As credenciais locais podem ser alteradas no `.env` usando as variáveis
+`DB_USERNAME`, `DB_PASSWORD` e `MYSQL_ROOT_PASSWORD`. Somente as variáveis
+declaradas no `compose.yaml` são enviadas para os containers; tokens de
+ferramentas de segurança não são repassados para a aplicação.
+
+### Usuários de desenvolvimento
+
+O perfil Spring `dev` cria as contas abaixo na primeira inicialização. A criação
+é idempotente: se o e-mail já existir, o usuário não será alterado.
+
+| Perfil | E-mail | Senha padrão |
+| --- | --- | --- |
+| Administrador | `admin@vollmed.local` | `Vollmed@2026` |
+| Médico | `medico@vollmed.local` | `Vollmed@2026` |
+| Paciente | `ana.silva@email.com` | `Vollmed@2026` |
+
+A conta da Ana é vinculada à paciente de teste criada pelas migrations. Os
+demais médicos continuam sendo massa de dados para CRUD, buscas e consultas,
+sem receber uma conta de acesso individual.
+
+A senha pode ser alterada com `TEST_USER_PASSWORD`. Para não criar essas contas,
+defina `TEST_USERS_ENABLED=false`. O inicializador não é executado fora do
+perfil `dev`.
+
+### Operação do ambiente
+
+```bash
+# Acompanhar os logs
+docker compose logs -f app
+
+# Parar e remover os containers, preservando o banco
+docker compose down
+
+# Recriar os containers usando os dados persistidos
+docker compose up -d
+
+# Remover também o volume e recriar o banco do zero
+docker compose down -v
+```
+
+Para conectar ao MySQL por uma IDE ou cliente externo, use
+`jdbc:mysql://localhost:3307/vollmed_web`. Dentro da rede Docker, a aplicação
+usa `jdbc:mysql://mysql:3306/vollmed_web`.
 
 ## 📱 Estrutura da Aplicação
 
