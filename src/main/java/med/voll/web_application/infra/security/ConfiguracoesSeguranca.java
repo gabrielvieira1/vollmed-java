@@ -36,7 +36,7 @@ public class ConfiguracoesSeguranca {
     return http
         .authorizeHttpRequests(req -> {
           req.requestMatchers("/css/**", "/js/**", "/assets/**", "/", "/index", "/home",
-              "/registro", "/logout")
+              "/registro", "/logout", "/actuator/health")
               .permitAll();
           req.requestMatchers("/relatorios/*/exportar-pdf").authenticated();
           req.anyRequest().authenticated();

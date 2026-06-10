@@ -1,0 +1,59 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: vollmed_web
+      MYSQL_USER: ${DB_USERNAME:-vollmed}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-vollmed_local}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_local}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - vollmed
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/vollmed_web?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USERNAME: ${DB_USERNAME:-vollmed}
+      DB_PASSWORD: ${DB_PASSWORD:-vollmed_local}
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: dev
+      TEST_USERS_ENABLED: ${TEST_USERS_ENABLED:-true}
+      TEST_USER_PASSWORD: ${TEST_USER_PASSWORD:-Vollmed@2026}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    networks:
+      - vollmed
+
+volumes:
+  mysql_data:
+
+networks:
+  vollmed:
+    driver: bridge
